@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController()
 @RequestMapping("/accounts")
@@ -33,12 +34,12 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Account> getAccount(@PathVariable Long id) {
+    public ResponseEntity<Account> getAccount(@PathVariable UUID id) {
         return ResponseEntity.ok().body(accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id)));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Account> updateAccount(@Valid @RequestBody AccountDto accountDto, @PathVariable Long id) {
+    public ResponseEntity<Account> updateAccount(@Valid @RequestBody AccountDto accountDto, @PathVariable UUID id) {
         Account account = accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
         account.setUsername(accountDto.getUsername());
         account.setPassword(accountDto.getPassword());
@@ -46,7 +47,7 @@ public class AccountController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteAccount(@PathVariable Long id) {
+    public ResponseEntity<?> deleteAccount(@PathVariable UUID id) {
         Account account = accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
         accountRepository.delete(account);
         return ResponseEntity.ok().build();
