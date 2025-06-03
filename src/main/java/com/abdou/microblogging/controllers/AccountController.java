@@ -5,11 +5,12 @@ import com.abdou.microblogging.entities.Account;
 import com.abdou.microblogging.exceptions.AccountNotFoundException;
 import com.abdou.microblogging.repositories.AccountRepository;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController()
@@ -23,18 +24,18 @@ public class AccountController {
 
     @PostMapping()
     public ResponseEntity<Account> createAccount(@Valid @RequestBody AccountDto accountDto) {
-        Account account = new Account(accountDto.getUsername(),accountDto.getEmail(), accountDto.getPassword());
+        Account account = new Account(accountDto.getUsername(), accountDto.getEmail(), accountDto.getPassword());
         accountRepository.save(account);
         return new ResponseEntity<>(account, HttpStatus.CREATED);
     }
 
     @GetMapping()
-    public ResponseEntity<List<Account>> getAllAccounts() {
-        return ResponseEntity.ok().body(accountRepository.findAll());
+    public ResponseEntity<PagedModel<Account>> getPaginatedAccounts(@RequestParam(required = true) int page) {
+        return ResponseEntity.ok().body(new PagedModel<>(accountRepository.findAll(Pageable.ofSize(10).withPage(page - 1))));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Account> getAccount(@PathVariable UUID id) {
+    public ResponseEntity<Account> getAccountInfo(@PathVariable UUID id) {
         return ResponseEntity.ok().body(accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id)));
     }
 
