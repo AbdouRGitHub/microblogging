@@ -3,6 +3,7 @@ package com.abdou.microblogging.entities;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -26,11 +28,10 @@ public class Account {
     private String password;
 
     @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "account", orphanRemoval = true, cascade = CascadeType.ALL)
@@ -43,19 +44,33 @@ public class Account {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public UUID getId() {
+        return id;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public String getUsername() {
+        return username;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public List<Post> getPosts() {
+        return posts;
     }
 }

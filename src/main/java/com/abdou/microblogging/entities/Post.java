@@ -3,12 +3,13 @@ package com.abdou.microblogging.entities;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -18,6 +19,7 @@ public class Post {
     private String content;
 
     @CreatedDate
+    @Column(updatable = false)
     LocalDateTime createdAt;
 
     @LastModifiedDate
@@ -26,9 +28,11 @@ public class Post {
     @ManyToOne
     private Account account;
 
-    public Post() {}
+    public Post() {
+    }
 
-    public Post(String content) {
+    public Post(String content, Account account) {
         this.content = content;
+        this.account = account;
     }
 }
