@@ -25,9 +25,6 @@ public class Account {
     @Column(nullable = false)
     private String password;
 
-    @Column(length = 100)
-    private String bio;
-
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -48,22 +45,6 @@ public class Account {
         this.password = password;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public void setUsername(String username) {

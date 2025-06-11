@@ -24,7 +24,7 @@ public class AccountController {
 
     @PostMapping()
     public ResponseEntity<Account> createAccount(@Valid @RequestBody AccountDto accountDto) {
-        Account account = new Account(accountDto.getUsername(), accountDto.getEmail(), accountDto.getPassword());
+        Account account = new Account(accountDto.username(), accountDto.email(), accountDto.password());
         accountRepository.save(account);
         return new ResponseEntity<>(account, HttpStatus.CREATED);
     }
@@ -42,8 +42,9 @@ public class AccountController {
     @PatchMapping("/{id}")
     public ResponseEntity<Account> updateAccount(@Valid @RequestBody AccountDto accountDto, @PathVariable UUID id) {
         Account account = accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
-        account.setUsername(accountDto.getUsername());
-        account.setPassword(accountDto.getPassword());
+        account.setUsername(accountDto.username());
+        account.setEmail(accountDto.email());
+        account.setPassword(accountDto.password());
         return ResponseEntity.ok().body(accountRepository.save(account));
     }
 
