@@ -19,7 +19,6 @@ public class Post {
     private String content;
 
     @CreatedDate
-    @Column(updatable = false)
     LocalDateTime createdAt;
 
     @LastModifiedDate
@@ -34,5 +33,9 @@ public class Post {
     public Post(String content, Account account) {
         this.content = content;
         this.account = account;
+    }
+
+    public String getContent() {
+        return content;
     }
 }

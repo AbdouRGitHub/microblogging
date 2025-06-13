@@ -28,7 +28,6 @@ public class Account {
     private String password;
 
     @CreatedDate
-    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
@@ -44,10 +43,6 @@ public class Account {
         this.username = username;
         this.email = email;
         this.password = password;
-    }
-
-    public UUID getId() {
-        return id;
     }
 
     public String getUsername() {
@@ -72,5 +67,17 @@ public class Account {
 
     public List<Post> getPosts() {
         return posts;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
