@@ -1,6 +1,7 @@
 package com.abdou.microblogging.controllers;
 
-import com.abdou.microblogging.dto.AccountDto;
+import com.abdou.microblogging.dto.account.AccountDto;
+import com.abdou.microblogging.dto.account.AccountUpdateDto;
 import com.abdou.microblogging.entities.Account;
 import com.abdou.microblogging.exceptions.AccountNotFoundException;
 import com.abdou.microblogging.repositories.AccountRepository;
@@ -30,7 +31,7 @@ public class AccountController {
     }
 
     @GetMapping()
-    public ResponseEntity<PagedModel<Account>> getPaginatedAccounts(@RequestParam(required = true) int page) {
+    public ResponseEntity<PagedModel<Account>> getPaginatedAccounts(@RequestParam(defaultValue = "1") int page) {
         return ResponseEntity.ok().body(new PagedModel<>(accountRepository.findAll(Pageable.ofSize(10).withPage(page - 1))));
     }
 
@@ -40,12 +41,19 @@ public class AccountController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Account> updateAccount(@Valid @RequestBody AccountDto accountDto, @PathVariable UUID id) {
+    public ResponseEntity<Account> updateAccount(@Valid @RequestBody AccountUpdateDto accountUpdateDto, @PathVariable UUID id) {
         Account account = accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
-        account.setUsername(accountDto.username());
-        account.setEmail(accountDto.email());
-        account.setPassword(accountDto.password());
-        return ResponseEntity.ok().body(accountRepository.save(account));
+
+        if (accountUpdateDto.username() != null) {
+            account.setUsername(accountUpdateDto.username());
+        }
+        if (accountUpdateDto.email() != null) {
+            account.setEmail(accountUpdateDto.email());
+        }
+        if (accountUpdateDto.password() != null) {
+            account.setPassword(accountUpdateDto.password());
+        }
+        return ResponseEntity.ok(accountRepository.save(account));
     }
 
     @DeleteMapping("/{id}")
