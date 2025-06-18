@@ -3,6 +3,7 @@ package com.abdou.microblogging.controllers;
 import com.abdou.microblogging.dto.post.PostDto;
 import com.abdou.microblogging.entities.Post;
 import com.abdou.microblogging.exceptions.AccountNotFoundException;
+import com.abdou.microblogging.exceptions.PostNotFoundException;
 import com.abdou.microblogging.repositories.AccountRepository;
 import com.abdou.microblogging.repositories.PostRepository;
 import org.springframework.data.domain.Pageable;
@@ -32,5 +33,17 @@ public class PostController {
     @GetMapping()
     public ResponseEntity<PagedModel<Post>> getPaginatedPosts(@RequestParam(defaultValue = "1") int page) {
         return ResponseEntity.ok().body(new PagedModel<>(postRepository.findAll(Pageable.ofSize(10).withPage(page - 1))));
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<Post> getPostInfo(@PathVariable UUID id) {
+        return ResponseEntity.ok().body(postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id)));
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deletePost(@PathVariable UUID id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
+        postRepository.delete(post);
+        return ResponseEntity.ok().build();
     }
 }
