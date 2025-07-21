@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -25,7 +26,8 @@ public class AccountController {
 
     @PostMapping()
     public ResponseEntity<Account> createAccount(@Valid @RequestBody AccountDto accountDto) {
-        Account account = new Account(accountDto.username(), accountDto.email(), accountDto.password());
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
+        Account account = new Account(accountDto.username(), accountDto.email(), encoder.encode(accountDto.password()));
         accountRepository.save(account);
         return new ResponseEntity<>(account, HttpStatus.CREATED);
     }
