@@ -1,5 +1,6 @@
 package com.abdou.microblogging.entities;
 
+import com.abdou.microblogging.enums.UserRole;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -26,6 +27,10 @@ public class Account {
 
     @Column(nullable = false)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private List<UserRole> userRoles = new ArrayList<>(List.of(UserRole.USER));
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -55,6 +60,10 @@ public class Account {
 
     public String getPassword() {
         return password;
+    }
+
+    public List<UserRole> getUserRoles() {
+        return userRoles;
     }
 
     public LocalDateTime getCreatedAt() {
