@@ -16,6 +16,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
+
+import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.COOKIES;
 
 @SpringBootApplication
 @EnableJpaAuditing
@@ -24,16 +28,32 @@ public class MicrobloggingApplication {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         return http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/accounts").permitAll()
+                        .requestMatchers("/auth/sessionExpired").permitAll()
+                        .requestMatchers("/posts/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
+                .sessionManagement(session -> session
+                        .invalidSessionUrl("/auth/sessionExpired")
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(true)
+                )
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.disable())
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(formLogin -> formLogin.disable())
-                .logout(logout -> logout.permitAll())
+                .logout((logout) -> logout
+                        .logoutUrl("/auth/logout")
+                        .logoutSuccessUrl("/auth/logoutSuccess")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(COOKIES)))
+                        .permitAll()
+                )
                 .build();
     }
 

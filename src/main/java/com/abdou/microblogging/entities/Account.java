@@ -5,16 +5,18 @@ import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.CredentialsContainer;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Account {
+public class Account implements UserDetails, CredentialsContainer {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -28,9 +30,10 @@ public class Account {
     @Column(nullable = false)
     private String password;
 
-    @Enumerated(EnumType.STRING)
+    @ElementCollection
     @Column(nullable = false)
-    private List<UserRole> userRoles = new ArrayList<>(List.of(UserRole.USER));
+    @Enumerated(EnumType.STRING)
+    private Set<UserRole> userRoles = new HashSet<>(List.of(UserRole.USER));
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -50,6 +53,10 @@ public class Account {
         this.password = password;
     }
 
+    public UUID getId() {
+        return id;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -58,12 +65,13 @@ public class Account {
         return email;
     }
 
-    public String getPassword() {
-        return password;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return userRoles.stream().map(role -> new SimpleGrantedAuthority(role.name())).toList();
     }
 
-    public List<UserRole> getUserRoles() {
-        return userRoles;
+    public String getPassword() {
+        return password;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -88,5 +96,10 @@ public class Account {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Override
+    public void eraseCredentials() {
+        this.password = null;
     }
 }
