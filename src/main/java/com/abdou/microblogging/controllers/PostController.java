@@ -6,6 +6,7 @@ import com.abdou.microblogging.exceptions.AccountNotFoundException;
 import com.abdou.microblogging.exceptions.PostNotFoundException;
 import com.abdou.microblogging.repositories.AccountRepository;
 import com.abdou.microblogging.repositories.PostRepository;
+import com.abdou.microblogging.services.PostService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
@@ -18,32 +19,36 @@ import java.util.UUID;
 public class PostController {
     private final PostRepository postRepository;
     private final AccountRepository accountRepository;
+    private final PostService postService;
 
-    PostController(PostRepository postRepository, AccountRepository accountRepository) {
+    PostController(PostRepository postRepository, AccountRepository accountRepository, PostService postService) {
         this.postRepository = postRepository;
         this.accountRepository = accountRepository;
+        this.postService = postService;
     }
 
     @PostMapping("/account/{id}")
     public ResponseEntity<Post> createPost(@PathVariable(name = "id") UUID AccountId, @RequestBody PostDto postDto) {
-        Post post = new Post(postDto.content(), accountRepository.findById(AccountId).orElseThrow(() -> new AccountNotFoundException(AccountId)));
-        return ResponseEntity.ok().body(postRepository.save(post));
+        return postService.createPost(AccountId, postDto);
     }
 
     @GetMapping()
     public ResponseEntity<PagedModel<Post>> getPaginatedPosts(@RequestParam(defaultValue = "1") int page) {
-        return ResponseEntity.ok().body(new PagedModel<>(postRepository.findAll(Pageable.ofSize(10).withPage(page - 1))));
+        return postService.getPaginatedPosts(page);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Post> getPostInfo(@PathVariable UUID id) {
-        return ResponseEntity.ok().body(postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id)));
+        return postService.getPostInfo(id);
     }
 
-    @DeleteMapping("{id}")
+    @PatchMapping("/{id}")
+    public ResponseEntity<Post> updatePost(@RequestBody PostDto postDto, @PathVariable UUID id) {
+        return postService.updatePost(postDto, id);
+    }
+
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePost(@PathVariable UUID id) {
-        Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
-        postRepository.delete(post);
-        return ResponseEntity.ok().build();
+        return postService.deletePost(id);
     }
 }
