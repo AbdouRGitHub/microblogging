@@ -1,8 +1,8 @@
 package com.abdou.microblogging.services;
 
 import com.abdou.microblogging.dto.post.PostDto;
+import com.abdou.microblogging.entities.Account;
 import com.abdou.microblogging.entities.Post;
-import com.abdou.microblogging.exceptions.AccountNotFoundException;
 import com.abdou.microblogging.exceptions.PostNotFoundException;
 import com.abdou.microblogging.repositories.AccountRepository;
 import com.abdou.microblogging.repositories.PostRepository;
@@ -25,11 +25,10 @@ public class PostService {
         this.accountRepository = accountRepository;
     }
 
-    public ResponseEntity<Post> createPost(UUID accountId, PostDto postDto) {
+    public ResponseEntity<Post> createPost(Account account, PostDto postDto) {
         Post post = new Post(
                 postDto.content(),
-                accountRepository.findById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId))
-        );
+                account);
         Post saved = postRepository.save(post);
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }

@@ -26,6 +26,10 @@ import static org.springframework.security.web.header.writers.ClearSiteDataHeade
 @EnableWebSecurity
 public class MicrobloggingApplication {
 
+    public static void main(String[] args) {
+        SpringApplication.run(MicrobloggingApplication.class, args);
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -72,10 +76,6 @@ public class MicrobloggingApplication {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(authenticationProvider);
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(MicrobloggingApplication.class, args);
     }
 
 }

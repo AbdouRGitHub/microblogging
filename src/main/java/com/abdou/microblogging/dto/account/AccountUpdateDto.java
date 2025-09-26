@@ -1,7 +1,7 @@
 package com.abdou.microblogging.dto.account;
 
-import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 
 public record AccountUpdateDto(
         @Size(min = 5, max = 20, message = "Username should contain between 5 & 20 characters")
