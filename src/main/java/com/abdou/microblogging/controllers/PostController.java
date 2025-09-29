@@ -1,15 +1,16 @@
 package com.abdou.microblogging.controllers;
 
+import com.abdou.microblogging.dto.comment.CommentDto;
 import com.abdou.microblogging.dto.post.PostDto;
+import com.abdou.microblogging.entities.Account;
 import com.abdou.microblogging.entities.Post;
-import com.abdou.microblogging.exceptions.AccountNotFoundException;
-import com.abdou.microblogging.exceptions.PostNotFoundException;
 import com.abdou.microblogging.repositories.AccountRepository;
 import com.abdou.microblogging.repositories.PostRepository;
+import com.abdou.microblogging.services.CommentService;
 import com.abdou.microblogging.services.PostService;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -20,16 +21,23 @@ public class PostController {
     private final PostRepository postRepository;
     private final AccountRepository accountRepository;
     private final PostService postService;
+    private final CommentService commentService;
 
-    PostController(PostRepository postRepository, AccountRepository accountRepository, PostService postService) {
+    PostController(PostRepository postRepository, AccountRepository accountRepository, PostService postService, CommentService commentService) {
         this.postRepository = postRepository;
         this.accountRepository = accountRepository;
         this.postService = postService;
+        this.commentService = commentService;
     }
 
-    @PostMapping("/account/{id}")
-    public ResponseEntity<Post> createPost(@PathVariable(name = "id") UUID AccountId, @RequestBody PostDto postDto) {
-        return postService.createPost(AccountId, postDto);
+    @PostMapping("/account")
+    public ResponseEntity<Post> createPost(@AuthenticationPrincipal Account account, @RequestBody PostDto postDto) {
+        return postService.createPost(account, postDto);
+    }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<?> createComment(@PathVariable UUID id, @RequestBody CommentDto commentDto, @AuthenticationPrincipal Account account) {
+        return this.commentService.createComment(id, commentDto, account);
     }
 
     @GetMapping()
