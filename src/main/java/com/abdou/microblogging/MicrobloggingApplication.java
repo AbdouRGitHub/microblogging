@@ -78,4 +78,8 @@ public class MicrobloggingApplication {
         return new ProviderManager(authenticationProvider);
     }
 
+    public static void main(String[] args) {
+        SpringApplication.run(MicrobloggingApplication.class, args);
+    }
+
 }
