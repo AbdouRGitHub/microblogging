@@ -26,7 +26,7 @@ public class Comment {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "post_id")
     private Post post;
 
@@ -55,6 +55,16 @@ public class Comment {
         this.post = post;
         this.account = account;
         this.parent = parent;
+    }
+
+    public Comment(String content, Account account, Comment parent) {
+        this.content = content;
+        this.account = account;
+        this.parent = parent;
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public String getContent() {
