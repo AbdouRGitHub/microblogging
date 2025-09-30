@@ -9,5 +9,9 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import java.util.UUID;
 
 public interface CommentRepository extends JpaRepository<Comment, UUID>, PagingAndSortingRepository<Comment, UUID> {
-    Page<Comment> findAllByPostId(UUID postId, Pageable pageable);
+    Page<Comment> findByPostId(UUID postId, Pageable pageable);
+
+    Page<Comment> findByParentId(UUID parentId, Pageable pageable);
+
+    UUID parent(Comment parent);
 }

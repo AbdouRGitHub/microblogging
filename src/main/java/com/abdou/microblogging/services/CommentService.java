@@ -61,13 +61,23 @@ public class CommentService {
         return null;
     }
 
-    public ResponseEntity<PagedModel<Comment>> getPaginatedComments(UUID postId, int page) {
+    public ResponseEntity<PagedModel<Comment>> getPaginatedPostComments(UUID postId, int page) {
         boolean postExists = postRepository.existsById(postId);
 
         if (postExists) {
-            return ResponseEntity.ok().body(new PagedModel<>(commentRepository.findAllByPostId(postId, Pageable.ofSize(10).withPage(page - 1))));
+            return ResponseEntity.ok().body(new PagedModel<>(commentRepository.findByPostId(postId, Pageable.ofSize(10).withPage(page - 1))));
         } else {
             throw new PostNotFoundException(postId);
+        }
+    }
+
+    public ResponseEntity<PagedModel<Comment>> getPaginatedCommentReplies(UUID parentId, int page) {
+        boolean postExists = commentRepository.existsById(parentId);
+
+        if (postExists) {
+            return ResponseEntity.ok().body(new PagedModel<>(commentRepository.findByParentId(parentId, Pageable.ofSize(10).withPage(page - 1))));
+        } else {
+            throw new CommentNotFoundException(parentId);
         }
     }
 }
