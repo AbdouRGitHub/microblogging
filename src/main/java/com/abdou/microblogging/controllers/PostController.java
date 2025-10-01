@@ -3,9 +3,8 @@ package com.abdou.microblogging.controllers;
 import com.abdou.microblogging.dto.comment.CommentDto;
 import com.abdou.microblogging.dto.post.PostDto;
 import com.abdou.microblogging.entities.Account;
+import com.abdou.microblogging.entities.Comment;
 import com.abdou.microblogging.entities.Post;
-import com.abdou.microblogging.repositories.AccountRepository;
-import com.abdou.microblogging.repositories.PostRepository;
 import com.abdou.microblogging.services.CommentService;
 import com.abdou.microblogging.services.PostService;
 import org.springframework.data.web.PagedModel;
@@ -18,24 +17,20 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/posts")
 public class PostController {
-    private final PostRepository postRepository;
-    private final AccountRepository accountRepository;
     private final PostService postService;
     private final CommentService commentService;
 
-    PostController(PostRepository postRepository, AccountRepository accountRepository, PostService postService, CommentService commentService) {
-        this.postRepository = postRepository;
-        this.accountRepository = accountRepository;
+    PostController(PostService postService, CommentService commentService) {
         this.postService = postService;
         this.commentService = commentService;
     }
 
-    @PostMapping("/account")
+    @PostMapping()
     public ResponseEntity<Post> createPost(@AuthenticationPrincipal Account account, @RequestBody PostDto postDto) {
         return postService.createPost(account, postDto);
     }
 
-    @PostMapping("/{id}")
+    @PostMapping("/{id}/comments")
     public ResponseEntity<?> createComment(@PathVariable UUID id, @RequestBody CommentDto commentDto, @AuthenticationPrincipal Account account) {
         return this.commentService.createComment(id, commentDto, account);
     }
@@ -48,6 +43,11 @@ public class PostController {
     @GetMapping("/{id}")
     public ResponseEntity<Post> getPostInfo(@PathVariable UUID id) {
         return postService.getPostInfo(id);
+    }
+
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<PagedModel<Comment>> getPaginatedPostComments(@PathVariable UUID postId, @RequestParam(defaultValue = "1") int page) {
+        return commentService.getPaginatedPostComments(postId, page);
     }
 
     @PatchMapping("/{id}")

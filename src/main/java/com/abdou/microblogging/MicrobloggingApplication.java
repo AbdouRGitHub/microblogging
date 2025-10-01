@@ -33,32 +33,7 @@ public class MicrobloggingApplication {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        return http
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/accounts").permitAll()
-                        .requestMatchers("/auth/sessionExpired").permitAll()
-                        .requestMatchers("/posts/**").hasAnyRole("USER", "ADMIN")
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(session -> session
-                        .invalidSessionUrl("/auth/sessionExpired")
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(true)
-                )
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.disable())
-                .httpBasic(httpBasic -> httpBasic.disable())
-                .formLogin(formLogin -> formLogin.disable())
-                .logout((logout) -> logout
-                        .logoutUrl("/auth/logout")
-                        .logoutSuccessUrl("/auth/logoutSuccess")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                        .addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(COOKIES)))
-                        .permitAll()
-                )
-                .build();
+        return http.authorizeHttpRequests((authorize) -> authorize.requestMatchers("/auth/login").permitAll().requestMatchers(HttpMethod.POST, "/accounts").permitAll().requestMatchers("/auth/sessionExpired").permitAll().requestMatchers("/posts/**").hasAnyRole("USER", "ADMIN").anyRequest().authenticated()).sessionManagement(session -> session.invalidSessionUrl("/auth/sessionExpired").maximumSessions(1).maxSessionsPreventsLogin(true)).csrf(csrf -> csrf.disable()).cors(cors -> cors.disable()).httpBasic(httpBasic -> httpBasic.disable()).formLogin(formLogin -> formLogin.disable()).logout((logout) -> logout.logoutUrl("/auth/logout").logoutSuccessUrl("/auth/logoutSuccess").invalidateHttpSession(true).deleteCookies("JSESSIONID").addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(COOKIES))).permitAll()).build();
     }
 
     @Bean
@@ -76,10 +51,6 @@ public class MicrobloggingApplication {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(authenticationProvider);
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(MicrobloggingApplication.class, args);
     }
 
 }

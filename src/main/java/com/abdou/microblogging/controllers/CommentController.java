@@ -4,6 +4,7 @@ import com.abdou.microblogging.dto.comment.CommentDto;
 import com.abdou.microblogging.entities.Account;
 import com.abdou.microblogging.entities.Comment;
 import com.abdou.microblogging.services.CommentService;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +30,13 @@ public class CommentController {
         return commentService.deleteComment(id, account);
     }
 
-    @PostMapping("/edit")
-    public void editComment() {
+    @PatchMapping("/{commentId}")
+    public ResponseEntity<Comment> updateComment(@RequestBody CommentDto commentDto, @PathVariable(name = "commentId") UUID id, @AuthenticationPrincipal Account account) {
+        return commentService.editComment();
+    }
 
+    @GetMapping("/{parentId}/replies")
+    public ResponseEntity<PagedModel<Comment>> getPaginatedCommentReplies(@PathVariable(name = "parentId") UUID parentId, @RequestParam(defaultValue = "1") int page) {
+        return commentService.getPaginatedCommentReplies(parentId, page);
     }
 }
