@@ -12,6 +12,4 @@ public interface CommentRepository extends JpaRepository<Comment, UUID>, PagingA
     Page<Comment> findByPostId(UUID postId, Pageable pageable);
 
     Page<Comment> findByParentId(UUID parentId, Pageable pageable);
-
-    UUID parent(Comment parent);
 }

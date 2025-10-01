@@ -26,6 +26,10 @@ import static org.springframework.security.web.header.writers.ClearSiteDataHeade
 @EnableWebSecurity
 public class MicrobloggingApplication {
 
+    public static void main(String[] args) {
+        SpringApplication.run(MicrobloggingApplication.class, args);
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
