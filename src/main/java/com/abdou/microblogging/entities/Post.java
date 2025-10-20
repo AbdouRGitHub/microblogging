@@ -53,4 +53,18 @@ public class Post {
     public void setContent(String content) {
         this.content = content;
     }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+
 }

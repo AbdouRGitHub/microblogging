@@ -1,6 +1,7 @@
 package com.abdou.microblogging.services;
 
 import com.abdou.microblogging.dto.post.PostDto;
+import com.abdou.microblogging.dto.post.PostResponseDto;
 import com.abdou.microblogging.entities.Account;
 import com.abdou.microblogging.entities.Post;
 import com.abdou.microblogging.exceptions.PostNotFoundException;
@@ -26,27 +27,30 @@ public class PostService {
     }
 
     public ResponseEntity<Post> createPost(Account account, PostDto postDto) {
-        Post post = new Post(
-                postDto.content(),
-                account);
+        Post post = new Post(postDto.content(), account);
         Post saved = postRepository.save(post);
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<PagedModel<Post>> getPaginatedPosts(int page) {
-        return ResponseEntity.ok(
-                new PagedModel<>(postRepository.findAll(Pageable.ofSize(10).withPage(page - 1)))
-        );
+    public ResponseEntity<PagedModel<PostResponseDto>> getPaginatedPosts(int page) {
+        return ResponseEntity.ok()
+                .body(new PagedModel<>(postRepository.findAll(Pageable.ofSize(10)
+                                .withPage(page - 1))
+                        .map(post -> new PostResponseDto(post.getId(),
+                                post.getContent(),
+                                post.getCreatedAt(),
+                                post.getUpdatedAt()
+                        ))));
     }
 
     public ResponseEntity<Post> getPostInfo(UUID id) {
-        return ResponseEntity.ok(
-                postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id))
-        );
+        return ResponseEntity.ok(postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException(id)));
     }
 
     public ResponseEntity<Post> updatePost(PostDto postDto, UUID id) {
-        Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException(id));
 
         if (postDto.content() != null) {
             post.setContent(postDto.content());
@@ -56,7 +60,8 @@ public class PostService {
     }
 
     public ResponseEntity<?> deletePost(UUID id) {
-        Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException(id));
         postRepository.delete(post);
         return ResponseEntity.ok().build();
     }

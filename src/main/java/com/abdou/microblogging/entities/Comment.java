@@ -26,7 +26,7 @@ public class Comment {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
 
@@ -34,7 +34,7 @@ public class Comment {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @ManyToOne(optional = false)
+    @ManyToOne()
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
@@ -75,32 +75,12 @@ public class Comment {
         this.content = content;
     }
 
-    public Post getPost() {
-        return post;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setPost(Post post) {
-        this.post = post;
-    }
-
-    public Account getAccount() {
-        return account;
-    }
-
-    public void setAccount(Account account) {
-        this.account = account;
-    }
-
-    public Comment getParent() {
-        return parent;
-    }
-
-    public void setParent(Comment parent) {
-        this.parent = parent;
-    }
-
-    public List<Comment> getReplies() {
-        return replies;
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }
 

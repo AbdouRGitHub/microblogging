@@ -2,6 +2,7 @@ package com.abdou.microblogging.controllers;
 
 import com.abdou.microblogging.dto.comment.CommentDto;
 import com.abdou.microblogging.dto.post.PostDto;
+import com.abdou.microblogging.dto.post.PostResponseDto;
 import com.abdou.microblogging.entities.Account;
 import com.abdou.microblogging.entities.Comment;
 import com.abdou.microblogging.entities.Post;
@@ -36,7 +37,7 @@ public class PostController {
     }
 
     @GetMapping()
-    public ResponseEntity<PagedModel<Post>> getPaginatedPosts(@RequestParam(defaultValue = "1") int page) {
+    public ResponseEntity<PagedModel<PostResponseDto>> getPaginatedPosts(@RequestParam(defaultValue = "1") int page) {
         return postService.getPaginatedPosts(page);
     }
 

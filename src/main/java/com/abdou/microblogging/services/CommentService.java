@@ -1,6 +1,8 @@
 package com.abdou.microblogging.services;
 
+import com.abdou.microblogging.dto.account.AccountResponseDto;
 import com.abdou.microblogging.dto.comment.CommentDto;
+import com.abdou.microblogging.dto.comment.CommentResponseDto;
 import com.abdou.microblogging.entities.Account;
 import com.abdou.microblogging.entities.Comment;
 import com.abdou.microblogging.entities.Post;
@@ -26,19 +28,22 @@ public class CommentService {
         this.postRepository = postRepository;
     }
 
-    public ResponseEntity<Comment> createComment(UUID id, CommentDto commentDto, Account account) {
-        Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
+    public ResponseEntity<CommentResponseDto> createComment(UUID id, CommentDto commentDto, Account account) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException(id));
 
         Comment newComment = new Comment(commentDto.content(), post, account);
-
-        Comment saved = commentRepository.save(newComment);
-        return new ResponseEntity<>(saved, HttpStatus.CREATED);
+        commentRepository.save(newComment);
+        CommentResponseDto commentResponseDto = CommentResponseDto.toCommentResponseDto(newComment);
+        return new ResponseEntity<>(commentResponseDto, HttpStatus.CREATED);
     }
 
     public ResponseEntity<Comment> replyToComment(UUID id, CommentDto commentDto, Account account) {
-        Comment parent = commentRepository.findById(id).orElseThrow(() -> new CommentNotFoundException(id));
+        Comment parent = commentRepository.findById(id)
+                .orElseThrow(() -> new CommentNotFoundException(id));
 
-        Comment replyComment = new Comment(commentDto.content(), account, parent);
+        Comment replyComment =
+                new Comment(commentDto.content(), account, parent);
 
         Comment saved = commentRepository.save(replyComment);
 
@@ -47,9 +52,10 @@ public class CommentService {
     }
 
     public ResponseEntity<?> deleteComment(UUID id, Account account) {
-        Comment comment = commentRepository.findById(id).orElseThrow(() -> new CommentNotFoundException(id));
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new CommentNotFoundException(id));
 
-        if (comment.getAccount().getId().equals(account.getId())) {
+        if (comment.getId().equals(account.getId())) {
             commentRepository.delete(comment);
             return ResponseEntity.ok().build();
         } else {
@@ -65,7 +71,9 @@ public class CommentService {
         boolean postExists = postRepository.existsById(postId);
 
         if (postExists) {
-            return ResponseEntity.ok().body(new PagedModel<>(commentRepository.findByPostId(postId, Pageable.ofSize(10).withPage(page - 1))));
+            return ResponseEntity.ok()
+                    .body(new PagedModel<>(commentRepository.findByPostId(postId,
+                            Pageable.ofSize(10).withPage(page - 1))));
         } else {
             throw new PostNotFoundException(postId);
         }
@@ -75,7 +83,10 @@ public class CommentService {
         boolean postExists = commentRepository.existsById(parentId);
 
         if (postExists) {
-            return ResponseEntity.ok().body(new PagedModel<>(commentRepository.findByParentId(parentId, Pageable.ofSize(10).withPage(page - 1))));
+            return ResponseEntity.ok()
+                    .body(new PagedModel<>(commentRepository.findByParentId(
+                            parentId,
+                            Pageable.ofSize(10).withPage(page - 1))));
         } else {
             throw new CommentNotFoundException(parentId);
         }

@@ -3,8 +3,10 @@ package com.abdou.microblogging.services;
 import com.abdou.microblogging.dto.account.AccountDto;
 import com.abdou.microblogging.dto.account.AccountUpdateDto;
 import com.abdou.microblogging.entities.Account;
+import com.abdou.microblogging.entities.Role;
 import com.abdou.microblogging.exceptions.AccountNotFoundException;
 import com.abdou.microblogging.repositories.AccountRepository;
+import com.abdou.microblogging.repositories.RoleRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -18,32 +20,43 @@ import java.util.UUID;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final RoleRepository roleRepository;
 
-    AccountService(AccountRepository accountRepository) {
+    AccountService(AccountRepository accountRepository, RoleRepository roleRepository) {
         this.accountRepository = accountRepository;
+        this.roleRepository = roleRepository;
     }
 
     public ResponseEntity<Account> createAccount(AccountDto accountDto) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
-        Account account = new Account(accountDto.username(), accountDto.email(), encoder.encode(accountDto.password()));
+        Role userRole = roleRepository.findByName("ROLE_USER")
+                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+        Account account = new Account(accountDto.username(), accountDto.email(), encoder.encode(accountDto.password()), userRole);
         accountRepository.save(account);
         return new ResponseEntity<>(account, HttpStatus.CREATED);
     }
 
     public ResponseEntity<PagedModel<Account>> getPaginatedAccounts(int page) {
-        return ResponseEntity.ok().body(new PagedModel<>(accountRepository.findAll(Pageable.ofSize(10).withPage(page - 1))));
+        return ResponseEntity.ok()
+                .body(new PagedModel<>(accountRepository.findAll(Pageable.ofSize(10)
+                        .withPage(page - 1))));
     }
 
     public ResponseEntity<Account> getAccountInfo(UUID id) {
-        return ResponseEntity.ok().body(accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id)));
+        return ResponseEntity.ok()
+                .body(accountRepository.findById(id)
+                        .orElseThrow(() -> new AccountNotFoundException(id)));
     }
 
     public ResponseEntity<?> getAccountInfo(Account account) {
-        return ResponseEntity.ok().body(accountRepository.findById(account.getId()).orElseThrow(() -> new AccountNotFoundException(account.getId())));
+        return ResponseEntity.ok()
+                .body(accountRepository.findById(account.getId())
+                        .orElseThrow(() -> new AccountNotFoundException(account.getId())));
     }
 
     public ResponseEntity<Account> updateAccount(AccountUpdateDto accountUpdateDto, UUID id) {
-        Account account = accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException(id));
 
         if (accountUpdateDto.username() != null) {
             account.setUsername(accountUpdateDto.username());
@@ -58,7 +71,8 @@ public class AccountService {
     }
 
     public ResponseEntity<?> deleteAccount(UUID id) {
-        Account account = accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException(id));
         accountRepository.delete(account);
         return ResponseEntity.ok().build();
     }

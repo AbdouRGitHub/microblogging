@@ -1,6 +1,5 @@
 package com.abdou.microblogging.entities;
 
-import com.abdou.microblogging.enums.UserRole;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -12,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Entity
@@ -30,10 +30,13 @@ public class Account implements UserDetails, CredentialsContainer {
     @Column(nullable = false)
     private String password;
 
-    @ElementCollection
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Set<UserRole> userRoles = new HashSet<>(List.of(UserRole.USER));
+    @ManyToMany
+    @JoinTable(
+            name = "account_roles",
+            joinColumns = @JoinColumn(name = "account_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private final Set<Role> roles = new HashSet<>();
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -51,6 +54,13 @@ public class Account implements UserDetails, CredentialsContainer {
         this.username = username;
         this.email = email;
         this.password = password;
+    }
+
+    public Account(String username, String email, String password, Role role) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.roles.add(role);
     }
 
     public UUID getId() {
@@ -75,7 +85,9 @@ public class Account implements UserDetails, CredentialsContainer {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return userRoles.stream().map(role -> new SimpleGrantedAuthority(role.name())).toList();
+        return this.roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toList());
     }
 
     public String getPassword() {
@@ -97,6 +109,7 @@ public class Account implements UserDetails, CredentialsContainer {
     public List<Post> getPosts() {
         return posts;
     }
+
 
     @Override
     public void eraseCredentials() {
