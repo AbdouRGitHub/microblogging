@@ -1,9 +1,9 @@
 package com.abdou.microblogging;
 
-import com.abdou.microblogging.entities.Role;
-import com.abdou.microblogging.repositories.AccountRepository;
-import com.abdou.microblogging.repositories.RoleRepository;
-import com.abdou.microblogging.services.CustomUserDetailsService;
+import com.abdou.microblogging.role.Role;
+import com.abdou.microblogging.account.AccountRepository;
+import com.abdou.microblogging.role.RoleRepository;
+import com.abdou.microblogging.common.CustomUserDetailsService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
