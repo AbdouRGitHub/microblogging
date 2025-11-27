@@ -2,10 +2,10 @@ package com.abdou.microblogging.comment;
 
 import com.abdou.microblogging.account.Account;
 import com.abdou.microblogging.comment.dto.CommentDto;
-import com.abdou.microblogging.comment.dto.CommentResponseDto;
-import com.abdou.microblogging.post.Post;
+import com.abdou.microblogging.comment.dto.CreateCommentDto;
 import com.abdou.microblogging.common.exceptions.CommentNotFoundException;
 import com.abdou.microblogging.common.exceptions.PostNotFoundException;
+import com.abdou.microblogging.post.Post;
 import com.abdou.microblogging.post.PostRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
@@ -25,27 +25,27 @@ public class CommentService {
         this.postRepository = postRepository;
     }
 
-    public ResponseEntity<CommentResponseDto> createComment(UUID id, CommentDto commentDto, Account account) {
+    public ResponseEntity<CommentDto> createComment(UUID id, CreateCommentDto createCommentDto, Account account) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new PostNotFoundException(id));
 
-        Comment newComment = new Comment(commentDto.content(), post, account);
+        Comment newComment =
+                new Comment(createCommentDto.content(), post, account);
         commentRepository.save(newComment);
-        CommentResponseDto commentResponseDto = CommentResponseDto.toCommentResponseDto(newComment);
-        return new ResponseEntity<>(commentResponseDto, HttpStatus.CREATED);
+        CommentDto commentDto = CommentDto.toCommentResponseDto(newComment);
+        return new ResponseEntity<>(commentDto, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<Comment> replyToComment(UUID id, CommentDto commentDto, Account account) {
+    public ResponseEntity<Comment> replyToComment(UUID id, CreateCommentDto createCommentDto, Account account) {
         Comment parent = commentRepository.findById(id)
                 .orElseThrow(() -> new CommentNotFoundException(id));
 
         Comment replyComment =
-                new Comment(commentDto.content(), account, parent);
+                new Comment(createCommentDto.content(), account, parent);
 
         Comment saved = commentRepository.save(replyComment);
 
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
-
     }
 
     public ResponseEntity<?> deleteComment(UUID id, Account account) {
@@ -64,26 +64,30 @@ public class CommentService {
         return null;
     }
 
-    public ResponseEntity<PagedModel<Comment>> getPaginatedPostComments(UUID postId, int page) {
+    public ResponseEntity<PagedModel<CommentDto>> getPaginatedPostComments(UUID postId, int page) {
         boolean postExists = postRepository.existsById(postId);
 
         if (postExists) {
+
             return ResponseEntity.ok()
                     .body(new PagedModel<>(commentRepository.findByPostId(postId,
-                            Pageable.ofSize(10).withPage(page - 1))));
+                                    Pageable.ofSize(10).withPage(page - 1))
+                            .map(CommentDto::toCommentResponseDto)
+                    ));
         } else {
             throw new PostNotFoundException(postId);
         }
     }
 
-    public ResponseEntity<PagedModel<Comment>> getPaginatedCommentReplies(UUID parentId, int page) {
+    public ResponseEntity<PagedModel<CommentDto>> getPaginatedCommentReplies(UUID parentId, int page) {
         boolean postExists = commentRepository.existsById(parentId);
 
         if (postExists) {
             return ResponseEntity.ok()
                     .body(new PagedModel<>(commentRepository.findByParentId(
-                            parentId,
-                            Pageable.ofSize(10).withPage(page - 1))));
+                                    parentId,
+                                    Pageable.ofSize(10).withPage(page - 1))
+                            .map(CommentDto::toCommentResponseDto)));
         } else {
             throw new CommentNotFoundException(parentId);
         }

@@ -84,5 +84,21 @@ public class Comment {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public List<Comment> getReplies() {
+        return replies;
+    }
+
+    public Comment getParent() {
+        return parent;
+    }
+
+    public Post getPost() {
+        return post;
+    }
 }
 

@@ -1,10 +1,10 @@
 package com.abdou.microblogging.post;
 
 import com.abdou.microblogging.account.Account;
-import com.abdou.microblogging.common.exceptions.PostNotFoundException;
 import com.abdou.microblogging.account.AccountRepository;
+import com.abdou.microblogging.common.exceptions.PostNotFoundException;
 import com.abdou.microblogging.post.dto.PostDto;
-import com.abdou.microblogging.post.dto.PostResponseDto;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -30,20 +30,17 @@ public class PostService {
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<PagedModel<PostResponseDto>> getPaginatedPosts(int page) {
+    public ResponseEntity<PagedModel<PostDto>> getPaginatedPosts(int page) {
+        Page<Post> posts = postRepository.findAll(Pageable.ofSize(10)
+                .withPage(page - 1));
         return ResponseEntity.ok()
-                .body(new PagedModel<>(postRepository.findAll(Pageable.ofSize(10)
-                                .withPage(page - 1))
-                        .map(post -> new PostResponseDto(post.getId(),
-                                post.getContent(),
-                                post.getCreatedAt(),
-                                post.getUpdatedAt()
-                        ))));
+                .body(new PagedModel<>(posts.map(PostDto::toPostResponseDto)));
     }
 
-    public ResponseEntity<Post> getPostInfo(UUID id) {
-        return ResponseEntity.ok(postRepository.findById(id)
-                .orElseThrow(() -> new PostNotFoundException(id)));
+    public ResponseEntity<PostDto> getPostInfo(UUID id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException(id));
+        return ResponseEntity.ok(PostDto.toPostResponseDto(post));
     }
 
     public ResponseEntity<Post> updatePost(PostDto postDto, UUID id) {

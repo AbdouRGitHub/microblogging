@@ -1,7 +1,7 @@
 package com.abdou.microblogging.account;
 
-import com.abdou.microblogging.account.dto.AccountDto;
-import com.abdou.microblogging.account.dto.AccountUpdateDto;
+import com.abdou.microblogging.account.dto.CreateAccountDto;
+import com.abdou.microblogging.account.dto.UpdateAccountDto;
 import com.abdou.microblogging.role.Role;
 import com.abdou.microblogging.common.exceptions.AccountNotFoundException;
 import com.abdou.microblogging.role.RoleRepository;
@@ -25,11 +25,12 @@ public class AccountService {
         this.roleRepository = roleRepository;
     }
 
-    public ResponseEntity<Account> createAccount(AccountDto accountDto) {
+    public ResponseEntity<Account> createAccount(CreateAccountDto createAccountDto) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
         Role userRole = roleRepository.findByName("ROLE_USER")
                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-        Account account = new Account(accountDto.username(), accountDto.email(), encoder.encode(accountDto.password()), userRole);
+        Account account = new Account(createAccountDto.username(), createAccountDto.email(), encoder.encode(
+                createAccountDto.password()), userRole);
         accountRepository.save(account);
         return new ResponseEntity<>(account, HttpStatus.CREATED);
     }
@@ -52,18 +53,18 @@ public class AccountService {
                         .orElseThrow(() -> new AccountNotFoundException(account.getId())));
     }
 
-    public ResponseEntity<Account> updateAccount(AccountUpdateDto accountUpdateDto, UUID id) {
+    public ResponseEntity<Account> updateAccount(UpdateAccountDto updateAccountDto, UUID id) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new AccountNotFoundException(id));
 
-        if (accountUpdateDto.username() != null) {
-            account.setUsername(accountUpdateDto.username());
+        if (updateAccountDto.username() != null) {
+            account.setUsername(updateAccountDto.username());
         }
-        if (accountUpdateDto.email() != null) {
-            account.setEmail(accountUpdateDto.email());
+        if (updateAccountDto.email() != null) {
+            account.setEmail(updateAccountDto.email());
         }
-        if (accountUpdateDto.password() != null) {
-            account.setPassword(accountUpdateDto.password());
+        if (updateAccountDto.password() != null) {
+            account.setPassword(updateAccountDto.password());
         }
         return ResponseEntity.ok(accountRepository.save(account));
     }

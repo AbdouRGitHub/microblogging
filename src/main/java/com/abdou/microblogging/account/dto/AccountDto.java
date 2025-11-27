@@ -1,20 +1,25 @@
 package com.abdou.microblogging.account.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import com.abdou.microblogging.account.Account;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.List;
+import java.util.UUID;
 
 public record AccountDto(
-        @NotBlank(message = "Username is empty")
-        @Size(min = 5, max = 20, message = "Username should contain between 5 & 20 characters")
+        UUID id,
         String username,
-
-        @NotBlank(message = "Email is Empty")
-        @Email(message = "Email is not valid")
-        String email,
-
-        @NotBlank(message = "Password is empty")
-        @Size(min = 6, max = 20, message = "Password should contain at least 6 characters")
-        String password
+        List<String> roles
 ) {
+    public static AccountDto toAccountDto(Account account) {
+        List<String> roles = account.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+        return new AccountDto(
+                account.getId(),
+                account.getUsername(),
+                roles
+        );
+    }
 }

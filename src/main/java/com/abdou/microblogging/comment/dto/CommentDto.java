@@ -1,9 +1,24 @@
 package com.abdou.microblogging.comment.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import com.abdou.microblogging.account.dto.AccountDto;
+import com.abdou.microblogging.comment.Comment;
 
-public record CommentDto(
-        @NotBlank @Size(min = 1, max = 500) String content
-) {
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+public record CommentDto(UUID id, String content, LocalDateTime createdAt,
+                         LocalDateTime updatedAt,
+                         AccountDto account) {
+    public static CommentDto toCommentResponseDto(Comment comment) {
+        return new CommentDto(comment.getId(),
+                comment.getContent(),
+                comment.getCreatedAt(),
+                comment.getUpdatedAt(),
+                AccountDto.toAccountDto(comment.getAccount()));
+    }
+
+    public static List<CommentDto> toCommentResponseDtoList(List<Comment> comments) {
+        return comments.stream().map(CommentDto::toCommentResponseDto).toList();
+    }
 }

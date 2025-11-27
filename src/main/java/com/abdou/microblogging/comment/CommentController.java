@@ -2,6 +2,7 @@ package com.abdou.microblogging.comment;
 
 import com.abdou.microblogging.account.Account;
 import com.abdou.microblogging.comment.dto.CommentDto;
+import com.abdou.microblogging.comment.dto.CreateCommentDto;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,8 +20,8 @@ public class CommentController {
     }
 
     @PostMapping("/{commentId}/reply")
-    public ResponseEntity<Comment> replyToComment(@PathVariable(name = "commentId") UUID id, @RequestBody CommentDto commentDto, @AuthenticationPrincipal Account account) {
-        return commentService.replyToComment(id, commentDto, account);
+    public ResponseEntity<Comment> replyToComment(@PathVariable(name = "commentId") UUID id, @RequestBody CreateCommentDto createCommentDto, @AuthenticationPrincipal Account account) {
+        return commentService.replyToComment(id, createCommentDto, account);
     }
 
     @PostMapping("/{commentId}/delete")
@@ -29,12 +30,12 @@ public class CommentController {
     }
 
     @PatchMapping("/{commentId}")
-    public ResponseEntity<Comment> updateComment(@RequestBody CommentDto commentDto, @PathVariable(name = "commentId") UUID id, @AuthenticationPrincipal Account account) {
+    public ResponseEntity<Comment> updateComment(@RequestBody CreateCommentDto createCommentDto, @PathVariable(name = "commentId") UUID id, @AuthenticationPrincipal Account account) {
         return commentService.editComment();
     }
 
     @GetMapping("/{parentId}/replies")
-    public ResponseEntity<PagedModel<Comment>> getPaginatedCommentReplies(@PathVariable(name = "parentId") UUID parentId, @RequestParam(defaultValue = "1") int page) {
+    public ResponseEntity<PagedModel<CommentDto>> getPaginatedCommentReplies(@PathVariable(name = "parentId") UUID parentId, @RequestParam(defaultValue = "1") int page) {
         return commentService.getPaginatedCommentReplies(parentId, page);
     }
 }

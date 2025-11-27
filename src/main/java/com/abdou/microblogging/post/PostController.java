@@ -1,11 +1,10 @@
 package com.abdou.microblogging.post;
 
-import com.abdou.microblogging.comment.dto.CommentDto;
 import com.abdou.microblogging.account.Account;
-import com.abdou.microblogging.comment.Comment;
 import com.abdou.microblogging.comment.CommentService;
+import com.abdou.microblogging.comment.dto.CommentDto;
+import com.abdou.microblogging.comment.dto.CreateCommentDto;
 import com.abdou.microblogging.post.dto.PostDto;
-import com.abdou.microblogging.post.dto.PostResponseDto;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,22 +29,22 @@ public class PostController {
     }
 
     @PostMapping("/{id}/comments")
-    public ResponseEntity<?> createComment(@PathVariable UUID id, @RequestBody CommentDto commentDto, @AuthenticationPrincipal Account account) {
-        return this.commentService.createComment(id, commentDto, account);
+    public ResponseEntity<?> createComment(@PathVariable UUID id, @RequestBody CreateCommentDto createCommentDto, @AuthenticationPrincipal Account account) {
+        return this.commentService.createComment(id, createCommentDto, account);
     }
 
     @GetMapping()
-    public ResponseEntity<PagedModel<PostResponseDto>> getPaginatedPosts(@RequestParam(defaultValue = "1") int page) {
+    public ResponseEntity<PagedModel<PostDto>> getPaginatedPosts(@RequestParam(defaultValue = "1") int page) {
         return postService.getPaginatedPosts(page);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Post> getPostInfo(@PathVariable UUID id) {
+    public ResponseEntity<PostDto> getPostInfo(@PathVariable UUID id) {
         return postService.getPostInfo(id);
     }
 
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<PagedModel<Comment>> getPaginatedPostComments(@PathVariable UUID postId, @RequestParam(defaultValue = "1") int page) {
+    public ResponseEntity<PagedModel<CommentDto>> getPaginatedPostComments(@PathVariable UUID postId, @RequestParam(defaultValue = "1") int page) {
         return commentService.getPaginatedPostComments(postId, page);
     }
 

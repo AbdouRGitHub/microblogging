@@ -1,7 +1,7 @@
 package com.abdou.microblogging.account;
 
-import com.abdou.microblogging.account.dto.AccountDto;
-import com.abdou.microblogging.account.dto.AccountUpdateDto;
+import com.abdou.microblogging.account.dto.CreateAccountDto;
+import com.abdou.microblogging.account.dto.UpdateAccountDto;
 import jakarta.validation.Valid;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +22,8 @@ public class AccountController {
     }
 
     @PostMapping()
-    public ResponseEntity<Account> createAccount(@Valid @RequestBody AccountDto accountDto) {
-        return accountService.createAccount(accountDto);
+    public ResponseEntity<Account> createAccount(@Valid @RequestBody CreateAccountDto createAccountDto) {
+        return accountService.createAccount(createAccountDto);
     }
 
     @GetMapping()
@@ -42,8 +42,8 @@ public class AccountController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Account> updateAccount(@Valid @RequestBody AccountUpdateDto accountUpdateDto, @AuthenticationPrincipal Account account) {
-        return accountService.updateAccount(accountUpdateDto, account.getId());
+    public ResponseEntity<Account> updateAccount(@Valid @RequestBody UpdateAccountDto updateAccountDto, @AuthenticationPrincipal Account account) {
+        return accountService.updateAccount(updateAccountDto, account.getId());
     }
 
     @DeleteMapping("/{id}")
