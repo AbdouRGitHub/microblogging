@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Table(name = "accounts")
 public class Account implements UserDetails, CredentialsContainer {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
