@@ -2,11 +2,9 @@ package com.abdou.microblogging;
 
 import com.abdou.microblogging.account.Account;
 import com.abdou.microblogging.account.AccountRepository;
-import com.abdou.microblogging.comment.Comment;
-import com.abdou.microblogging.comment.CommentRepository;
 import com.abdou.microblogging.common.CustomUserDetailsService;
-import com.abdou.microblogging.post.Post;
-import com.abdou.microblogging.post.PostRepository;
+import com.abdou.microblogging.message.Message;
+import com.abdou.microblogging.message.MessageRepository;
 import com.abdou.microblogging.role.Role;
 import com.abdou.microblogging.role.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -32,8 +30,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
 
 import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.COOKIES;
 
@@ -50,220 +46,61 @@ public class MicrobloggingApplication {
     public CommandLineRunner initDatabase(
             RoleRepository roleRepository,
             AccountRepository accountRepository,
-            PostRepository postRepository,
-            CommentRepository commentRepository,
+            MessageRepository messageRepository,
             PasswordEncoder passwordEncoder
     ) {
         return args -> {
-
-            System.out.println("\n========================================");
-            System.out.println(
-                    "🚀 Démarrage du peuplement de la base de données...");
-            System.out.println("========================================\n");
-
-            // ========== Création des rôles ==========
-            if (roleRepository.count() == 0) {
-                Role userRole = new Role();
-                userRole.setName("ROLE_USER");
-
-                Role adminRole = new Role();
-                adminRole.setName("ROLE_ADMIN");
-
-                roleRepository.saveAll(Arrays.asList(userRole, adminRole));
-                System.out.println("✓ Rôles USER et ADMIN créés avec succès");
-            } else {
-                System.out.println(
-                        "✓ Les rôles existent déjà dans la base de données");
+            if (accountRepository.count() > 0) {
+                return;
             }
 
-            // ========== Création des utilisateurs ==========
-            if (accountRepository.count() == 0) {
-                Role userRole = roleRepository.findByName("ROLE_USER")
-                        .orElseThrow(() -> new RuntimeException(
-                                "Role ROLE_USER non trouvé"));
+            Role userRole = new Role("ROLE_USER");
+            Role adminRole = new Role("ROLE_ADMIN");
+            userRole = roleRepository.save(userRole);
+            adminRole = roleRepository.save(adminRole);
 
-                String[] usernames = {
-                        "alice_martin", "bob_dupont", "charlie_bernard", "diana_petit",
-                        "emma_durand", "felix_moreau", "grace_laurent", "hugo_simon",
-                        "iris_michel", "jules_lefebvre"
-                };
+            // 20 utilisateurs (user1: ADMIN, autres: USER)
+            for (int i = 1; i <= 20; i++) {
+                boolean isAdmin = (i == 1);
+                Role mainRole = isAdmin ? adminRole : userRole;
 
-                String[] emails = {
-                        "alice.martin@example.com", "bob.dupont@example.com",
-                        "charlie.bernard@example.com", "diana.petit@example.com",
-                        "emma.durand@example.com", "felix.moreau@example.com",
-                        "grace.laurent@example.com", "hugo.simon@example.com",
-                        "iris.michel@example.com", "jules.lefebvre@example.com"
-                };
+                Account account = new Account(
+                        "user" + i,
+                        "user" + i + "@example.com",
+                        passwordEncoder.encode("password123"),
+                        mainRole
+                );
+                account = accountRepository.save(account);
 
-                for (int i = 0; i < 10; i++) {
-                    Account account = new Account(
-                            usernames[i],
-                            emails[i],
-                            passwordEncoder.encode("password123"),
-                            userRole
+                for (int p = 1; p <= 3; p++) {
+                    Message post = new Message(
+                            "Post " + p + " de " + account.getUsername(),
+                            account
                     );
-                    accountRepository.save(account);
-                }
+                    post = messageRepository.save(post);
 
-                System.out.println("✓ 10 utilisateurs créés avec succès");
-            } else {
-                System.out.println(
-                        "✓ Les utilisateurs existent déjà dans la base de données");
-            }
+                    for (int c = 1; c <= 5; c++) {
+                        Message comment = new Message(
+                                "Commentaire " + c + " sur le post " + p +
+                                        " de " + account.getUsername(),
+                                account,
+                                post
+                        );
+                        comment = messageRepository.save(comment);
 
-            // ========== Création des posts ==========
-            if (postRepository.count() == 0) {
-                List<Account> accounts = accountRepository.findAll();
-
-                String[] postContents = {
-                        "Premier post ! 🎉",
-                        "Belle journée ☀️",
-                        "J'adore Spring Boot 💻",
-                        "Besoin d'aide sur JPA ?",
-                        "Café du matin ☕",
-                        "Bug depuis 2h 😅",
-                        "Nouveau projet 🚀",
-                        "Tests unitaires #TDD",
-                        "Weekend enfin !",
-                        "Lecture : Clean Code 📚",
-                        "IntelliJ > tout",
-                        "Docker en prod ?",
-                        "La doc c'est important",
-                        "Pause déjeuner 🍕",
-                        "Bug critique fixé",
-                        "Design patterns 👌",
-                        "Première contrib OS 🎊",
-                        "Pair programming ?",
-                        "Refactoring time 😌",
-                        "Java nouvelle version !",
-                        "Microservices ftw",
-                        "Code review ++",
-                        "PostgreSQL vs MySQL ?",
-                        "Security first 🔒",
-                        "REST best practices",
-                        "Journée productive 💪",
-                        "Raccourcis clavier 🎹",
-                        "Archi hexa retour +",
-                        "Clean archi validé",
-                        "Bonne soirée devs 🌙"
-                };
-
-                // Chaque utilisateur crée 3 posts
-                int postIndex = 0;
-                for (Account account : accounts) {
-                    for (int j = 0; j < 3; j++) {
-                        if (postIndex < postContents.length) {
-                            Post post =
-                                    new Post(postContents[postIndex], account);
-                            postRepository.save(post);
-                            postIndex++;
+                        for (int r = 1; r <= 2; r++) {
+                            Message reply = new Message(
+                                    "Réponse " + r + " au commentaire " + c +
+                                            " du post " + p +
+                                            " de " + account.getUsername(),
+                                    account,
+                                    comment
+                            );
+                            messageRepository.save(reply);
                         }
                     }
                 }
-
-                System.out.println("✓ " + postIndex + " posts créés avec succès");
-            } else {
-                System.out.println(
-                        "✓ Les posts existent déjà dans la base de données");
             }
-
-            // ========== Création des commentaires ==========
-            if (commentRepository.count() == 0) {
-                List<Account> accounts = accountRepository.findAll();
-                List<Post> posts = postRepository.findAll();
-                Random random = new Random();
-
-                String[] commentContents = {
-                        "Super ! 👍",
-                        "Totalement d'accord",
-                        "Intéressant 🤔",
-                        "Merci !",
-                        "Pareil ici",
-                        "Bonne question",
-                        "Check la doc",
-                        "Bravo 🎉",
-                        "Très utile",
-                        "Je peux aider",
-                        "Nice !",
-                        "Hâte de voir",
-                        "GG 🎊",
-                        "Exactement ça",
-                        "Merci l'astuce",
-                        "Je connaissais pas",
-                        "Bien expliqué 👌",
-                        "Bonne idée",
-                        "Partant !",
-                        "Top ressource"
-                };
-
-                // Créer 2-3 commentaires aléatoires pour chaque post
-                int totalComments = 0;
-                for (Post post : posts) {
-                    int numComments =
-                            2 + random.nextInt(2); // 2 ou 3 commentaires
-                    for (int i = 0; i < numComments; i++) {
-                        Account randomAccount =
-                                accounts.get(random.nextInt(accounts.size()));
-                        String content =
-                                commentContents[random.nextInt(commentContents.length)];
-                        Comment comment =
-                                new Comment(content, post, randomAccount);
-                        commentRepository.save(comment);
-                        totalComments++;
-                    }
-                }
-
-                System.out.println("✓ " + totalComments + " commentaires créés avec succès");
-
-                // Créer quelques réponses aux commentaires
-                List<Comment> comments = commentRepository.findAll();
-                String[] replyContents = {
-                        "Merci ! 😊",
-                        "De rien !",
-                        "Content d'aider",
-                        "N'hésite pas",
-                        "Merci à toi",
-                        "Oui !",
-                        "Exactement 💯",
-                        "Je te dis",
-                        "Super merci",
-                        "👍👍"
-                };
-
-                // Créer 10-15 réponses aléatoires
-                int numReplies = 10 + random.nextInt(6);
-                int createdReplies = 0;
-                for (int i = 0; i < numReplies && i < comments.size(); i++) {
-                    Comment parentComment =
-                            comments.get(random.nextInt(comments.size()));
-                    Account randomAccount =
-                            accounts.get(random.nextInt(accounts.size()));
-                    String content =
-                            replyContents[random.nextInt(replyContents.length)];
-                    Comment reply = new Comment(content,
-                            parentComment.getPost(),
-                            randomAccount,
-                            parentComment);
-                    commentRepository.save(reply);
-                    createdReplies++;
-                }
-
-                System.out.println("✓ " + createdReplies + " réponses aux commentaires créées avec succès");
-            } else {
-                System.out.println(
-                        "✓ Les commentaires existent déjà dans la base de données");
-            }
-
-            System.out.println("\n========================================");
-            System.out.println("✅ Base de données peuplée avec succès !");
-            System.out.println("========================================");
-            System.out.println("📊 Statistiques :");
-            System.out.println("   - Rôles : " + roleRepository.count());
-            System.out.println("   - Utilisateurs : " + accountRepository.count());
-            System.out.println("   - Posts : " + postRepository.count());
-            System.out.println("   - Commentaires : " + commentRepository.count());
-            System.out.println("========================================\n");
         };
     }
 

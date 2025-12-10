@@ -10,7 +10,6 @@ import java.util.UUID;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "roles")
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

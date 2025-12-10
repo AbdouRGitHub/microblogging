@@ -1,7 +1,6 @@
-package com.abdou.microblogging.post;
+package com.abdou.microblogging.message;
 
 import com.abdou.microblogging.account.Account;
-import com.abdou.microblogging.comment.Comment;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -15,7 +14,7 @@ import java.util.UUID;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "posts")
-public class Post {
+public class Message {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -34,15 +33,25 @@ public class Post {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private Message parent;
 
-    public Post() {
+    @OneToMany(mappedBy = "parent", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Message> replies = new ArrayList<>();
+
+    public Message() {
     }
 
-    public Post(String content, Account account) {
+    public Message(String content, Account account) {
         this.content = content;
         this.account = account;
+    }
+
+    public Message(String content, Account account, Message parent) {
+        this.content = content;
+        this.account = account;
+        this.parent = parent;
     }
 
     public UUID getId() {
