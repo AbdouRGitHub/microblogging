@@ -17,22 +17,35 @@ import java.util.UUID;
 public class MessageService {
 
     private final MessageRepository messageRepository;
-    private final AccountRepository accountRepository;
 
-    MessageService(MessageRepository messageRepository, AccountRepository accountRepository) {
+    MessageService(MessageRepository messageRepository,
+                   AccountRepository accountRepository
+    ) {
         this.messageRepository = messageRepository;
-        this.accountRepository = accountRepository;
     }
 
-    public ResponseEntity<Message> createPost(Account account, MessageDto messageDto) {
+    public ResponseEntity<Message> createPost(Account account,
+                                              MessageDto messageDto
+    ) {
         Message message = new Message(messageDto.content(), account);
         Message saved = messageRepository.save(message);
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
     public ResponseEntity<PagedModel<MessageDto>> getPaginatedPosts(int page) {
-        Page<Message> posts = messageRepository.findLatestPosts(Pageable.ofSize(10)
-                .withPage(page - 1));
+        Page<Message> posts =
+                messageRepository.findLatestPosts(Pageable.ofSize(10)
+                        .withPage(page - 1));
+        return ResponseEntity.ok()
+                .body(new PagedModel<>(posts.map(MessageDto::toPostResponseDto)));
+    }
+
+    public ResponseEntity<PagedModel<MessageDto>> getPaginatedComments(UUID postId,
+                                                                       int page
+    ) {
+        Page<Message> posts =
+                messageRepository.findLatestComments(Pageable.ofSize(10)
+                        .withPage(page - 1), postId);
         return ResponseEntity.ok()
                 .body(new PagedModel<>(posts.map(MessageDto::toPostResponseDto)));
     }

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/messages")
+@RequestMapping("/posts")
 public class MessageController {
     private final MessageService messageService;
     
@@ -26,6 +26,11 @@ public class MessageController {
     @GetMapping()
     public ResponseEntity<PagedModel<MessageDto>> getPaginatedPosts(@RequestParam(defaultValue = "1") int page) {
         return messageService.getPaginatedPosts(page);
+    }
+
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<PagedModel<MessageDto>> getPaginatedComments(@PathVariable("id") UUID postId, @RequestParam(defaultValue = "1") int page) {
+        return messageService.getPaginatedComments(postId, page);
     }
 
     @GetMapping("/{id}")
