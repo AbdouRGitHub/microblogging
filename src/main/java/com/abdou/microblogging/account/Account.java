@@ -1,6 +1,6 @@
 package com.abdou.microblogging.account;
 
-import com.abdou.microblogging.message.Message;
+import com.abdou.microblogging.post.Post;
 import com.abdou.microblogging.role.Role;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -48,7 +48,7 @@ public class Account implements UserDetails, CredentialsContainer {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "account", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<Message> messages = new ArrayList<>();
+    private List<Post> posts = new ArrayList<>();
 
     public Account() {
     }
@@ -109,8 +109,8 @@ public class Account implements UserDetails, CredentialsContainer {
         return updatedAt;
     }
 
-    public List<Message> getPosts() {
-        return messages;
+    public List<Post> getPosts() {
+        return posts;
     }
 
 

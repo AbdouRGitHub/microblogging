@@ -1,4 +1,4 @@
-package com.abdou.microblogging.message;
+package com.abdou.microblogging.post;
 
 import com.abdou.microblogging.account.Account;
 import jakarta.persistence.*;
@@ -14,7 +14,7 @@ import java.util.UUID;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "messages")
-public class Message {
+public class Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -35,20 +35,20 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
-    private Message parent;
+    private Post parent;
 
     @OneToMany(mappedBy = "parent", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<Message> replies = new ArrayList<>();
+    private List<Post> replies = new ArrayList<>();
 
-    public Message() {
+    public Post() {
     }
 
-    public Message(String content, Account account) {
+    public Post(String content, Account account) {
         this.content = content;
         this.account = account;
     }
 
-    public Message(String content, Account account, Message parent) {
+    public Post(String content, Account account, Post parent) {
         this.content = content;
         this.account = account;
         this.parent = parent;

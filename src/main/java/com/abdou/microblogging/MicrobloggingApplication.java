@@ -3,8 +3,8 @@ package com.abdou.microblogging;
 import com.abdou.microblogging.account.Account;
 import com.abdou.microblogging.account.AccountRepository;
 import com.abdou.microblogging.common.CustomUserDetailsService;
-import com.abdou.microblogging.message.Message;
-import com.abdou.microblogging.message.MessageRepository;
+import com.abdou.microblogging.post.Post;
+import com.abdou.microblogging.post.PostRepository;
 import com.abdou.microblogging.role.Role;
 import com.abdou.microblogging.role.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -46,7 +46,7 @@ public class MicrobloggingApplication {
     public CommandLineRunner initDatabase(
             RoleRepository roleRepository,
             AccountRepository accountRepository,
-            MessageRepository messageRepository,
+            PostRepository postRepository,
             PasswordEncoder passwordEncoder
     ) {
         return args -> {
@@ -73,30 +73,30 @@ public class MicrobloggingApplication {
                 account = accountRepository.save(account);
 
                 for (int p = 1; p <= 3; p++) {
-                    Message post = new Message(
+                    Post post = new Post(
                             "Post " + p + " de " + account.getUsername(),
                             account
                     );
-                    post = messageRepository.save(post);
+                    post = postRepository.save(post);
 
                     for (int c = 1; c <= 5; c++) {
-                        Message comment = new Message(
+                        Post comment = new Post(
                                 "Commentaire " + c + " sur le post " + p +
                                         " de " + account.getUsername(),
                                 account,
                                 post
                         );
-                        comment = messageRepository.save(comment);
+                        comment = postRepository.save(comment);
 
                         for (int r = 1; r <= 2; r++) {
-                            Message reply = new Message(
+                            Post reply = new Post(
                                     "Réponse " + r + " au commentaire " + c +
                                             " du post " + p +
                                             " de " + account.getUsername(),
                                     account,
                                     comment
                             );
-                            messageRepository.save(reply);
+                            postRepository.save(reply);
                         }
                     }
                 }
