@@ -43,12 +43,16 @@ public class PostController {
     }
 
     @GetMapping("/by-user/{id}")
-    public ResponseEntity<PagedModel<PostDto>> getPaginatedUserPosts(@PathVariable UUID id, @RequestParam(defaultValue = "1") int page) {
+    public ResponseEntity<PagedModel<PostDto>> getPaginatedUserPosts(@PathVariable UUID id,
+                                                                     @RequestParam(defaultValue = "1") int page
+    ) {
         return postService.getPaginatedUserPosts(id, page);
     }
 
     @GetMapping("/by-user/{id}/replies")
-    public ResponseEntity<PagedModel<PostDto>> getPaginatedUserReplies(@PathVariable UUID id, @RequestParam(defaultValue = "1") int page) {
+    public ResponseEntity<PagedModel<PostDto>> getPaginatedUserReplies(@PathVariable UUID id,
+                                                                       @RequestParam(defaultValue = "1") int page
+    ) {
         return postService.getPaginatedUserReplies(id, page);
     }
 

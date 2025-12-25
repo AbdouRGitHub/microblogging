@@ -66,6 +66,10 @@ public class Post {
         this.content = content;
     }
 
+    public List<Post> getReplies() {
+        return replies;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -77,6 +81,5 @@ public class Post {
     public Account getAccount() {
         return account;
     }
-
 
 }
