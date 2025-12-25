@@ -1,6 +1,6 @@
 package com.abdou.microblogging.post.dto;
 
-import com.abdou.microblogging.account.dto.AccountDto;
+import com.abdou.microblogging.account.dto.AccountDetailsDto;
 import com.abdou.microblogging.post.Post;
 
 import java.time.LocalDateTime;
@@ -12,14 +12,14 @@ public record PostDto(
         String content,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        AccountDto account
+        AccountDetailsDto account
 ) {
     public static PostDto toPostResponseDto(Post post) {
         return new PostDto(post.getId(),
                 post.getContent(),
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
-                AccountDto.toAccountDto(post.getAccount()));
+                AccountDetailsDto.toDto(post.getAccount()));
     }
 
     public static List<PostDto> toPostResponseDtoList(List<Post> posts) {

@@ -43,11 +43,10 @@ public class MicrobloggingApplication {
     }
 
     @Bean
-    public CommandLineRunner initDatabase(
-            RoleRepository roleRepository,
-            AccountRepository accountRepository,
-            PostRepository postRepository,
-            PasswordEncoder passwordEncoder
+    public CommandLineRunner initDatabase(RoleRepository roleRepository,
+                                          AccountRepository accountRepository,
+                                          PostRepository postRepository,
+                                          PasswordEncoder passwordEncoder
     ) {
         return args -> {
             if (accountRepository.count() > 0) {
@@ -64,38 +63,30 @@ public class MicrobloggingApplication {
                 boolean isAdmin = (i == 1);
                 Role mainRole = isAdmin ? adminRole : userRole;
 
-                Account account = new Account(
-                        "user" + i,
+                Account account = new Account("user" + i,
                         "user" + i + "@example.com",
                         passwordEncoder.encode("password123"),
-                        mainRole
-                );
+                        mainRole);
                 account = accountRepository.save(account);
 
                 for (int p = 1; p <= 3; p++) {
-                    Post post = new Post(
-                            "Post " + p + " de " + account.getUsername(),
-                            account
-                    );
+                    Post post =
+                            new Post("Post " + p + " de " + account.getUsername(),
+                                    account);
                     post = postRepository.save(post);
 
                     for (int c = 1; c <= 5; c++) {
-                        Post comment = new Post(
-                                "Commentaire " + c + " sur le post " + p +
-                                        " de " + account.getUsername(),
-                                account,
-                                post
-                        );
+                        Post comment =
+                                new Post("Commentaire " + c + " sur le post " + p + " de " + account.getUsername(),
+                                        account,
+                                        post);
                         comment = postRepository.save(comment);
 
                         for (int r = 1; r <= 2; r++) {
-                            Post reply = new Post(
-                                    "Réponse " + r + " au commentaire " + c +
-                                            " du post " + p +
-                                            " de " + account.getUsername(),
-                                    account,
-                                    comment
-                            );
+                            Post reply =
+                                    new Post("Réponse " + r + " au commentaire " + c + " du post " + p + " de " + account.getUsername(),
+                                            account,
+                                            comment);
                             postRepository.save(reply);
                         }
                     }
@@ -110,6 +101,8 @@ public class MicrobloggingApplication {
                                 "/auth/login")
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/accounts")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/accounts/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts/**")
                         .permitAll()

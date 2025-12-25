@@ -17,4 +17,10 @@ public interface PostRepository extends JpaRepository<Post, UUID>, PagingAndSort
     Page<Post> findLatestComments(Pageable pageable,
                                   @Param("parentId") UUID parentId
     );
+
+    @Query("SELECT m FROM Post m WHERE m.account.id = :userId AND m.parent.id IS NULL ORDER BY m.createdAt ASC")
+    Page<Post> findUserPosts(Pageable pageable, @Param("userId") UUID id);
+
+    @Query("SELECT m FROM Post m WHERE m.account.id = :userId AND m.parent.id IS NOT NULL ORDER BY m.createdAt ASC")
+    Page<Post> findUserReplies(Pageable pageable, @Param("userId") UUID id);
 }

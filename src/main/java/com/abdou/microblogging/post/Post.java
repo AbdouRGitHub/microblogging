@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "messages")
+@Table(name = "posts")
 public class Post {
 
     @Id

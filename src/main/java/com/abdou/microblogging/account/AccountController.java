@@ -1,5 +1,6 @@
 package com.abdou.microblogging.account;
 
+import com.abdou.microblogging.account.dto.AccountDetailsDto;
 import com.abdou.microblogging.account.dto.CreateAccountDto;
 import com.abdou.microblogging.account.dto.UpdateAccountDto;
 import jakarta.validation.Valid;
@@ -14,11 +15,9 @@ import java.util.UUID;
 @RequestMapping("/accounts")
 public class AccountController {
     private final AccountService accountService;
-    private final AccountRepository accountRepository;
 
-    AccountController(AccountService accountService, AccountRepository accountRepository) {
+    AccountController(AccountService accountService) {
         this.accountService = accountService;
-        this.accountRepository = accountRepository;
     }
 
     @PostMapping()
@@ -27,12 +26,12 @@ public class AccountController {
     }
 
     @GetMapping()
-    public ResponseEntity<PagedModel<Account>> getPaginatedAccounts(@RequestParam(defaultValue = "1") int page) {
+    public ResponseEntity<PagedModel<AccountDetailsDto>> getPaginatedAccounts(@RequestParam(defaultValue = "1") int page) {
         return accountService.getPaginatedAccounts(page);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Account> getAccountInfo(@PathVariable UUID id) {
+    public ResponseEntity<AccountDetailsDto> getAccountInfo(@PathVariable UUID id) {
         return accountService.getAccountInfo(id);
     }
 
@@ -42,7 +41,9 @@ public class AccountController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Account> updateAccount(@Valid @RequestBody UpdateAccountDto updateAccountDto, @AuthenticationPrincipal Account account) {
+    public ResponseEntity<Account> updateAccount(@Valid @RequestBody UpdateAccountDto updateAccountDto,
+                                                 @AuthenticationPrincipal Account account
+    ) {
         return accountService.updateAccount(updateAccountDto, account.getId());
     }
 

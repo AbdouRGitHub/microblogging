@@ -32,7 +32,7 @@ public class PostService {
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<PagedModel<PostDto>> getPaginatedPosts(int page) {
+    public ResponseEntity<PagedModel<PostDto>> getLatestPosts(int page) {
         Page<Post> posts =
                 postRepository.findLatestPosts(Pageable.ofSize(10)
                         .withPage(page - 1));
@@ -54,6 +54,24 @@ public class PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new PostNotFoundException(id));
         return ResponseEntity.ok(PostDto.toPostResponseDto(post));
+    }
+
+    public ResponseEntity<PagedModel<PostDto>> getPaginatedUserPosts(UUID userId,
+                                                                     int page
+    ) {
+        Page<Post> posts = postRepository.findUserPosts(Pageable.ofSize(10)
+                .withPage(page - 1), userId);
+
+        return ResponseEntity.ok(new PagedModel<>(posts.map(PostDto::toPostResponseDto)));
+    }
+
+    public ResponseEntity<PagedModel<PostDto>> getPaginatedUserReplies(UUID userId,
+                                                                     int page
+    ) {
+        Page<Post> posts = postRepository.findUserReplies(Pageable.ofSize(10)
+                .withPage(page - 1), userId);
+
+        return ResponseEntity.ok(new PagedModel<>(posts.map(PostDto::toPostResponseDto)));
     }
 
     public ResponseEntity<Post> updatePost(PostDto postDto, UUID id) {
