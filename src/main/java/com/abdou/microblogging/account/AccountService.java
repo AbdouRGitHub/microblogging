@@ -3,7 +3,7 @@ package com.abdou.microblogging.account;
 import com.abdou.microblogging.account.dto.AccountDetailsDto;
 import com.abdou.microblogging.account.dto.CreateAccountDto;
 import com.abdou.microblogging.account.dto.UpdateAccountDto;
-import com.abdou.microblogging.common.exceptions.AccountNotFoundException;
+import com.abdou.microblogging.account.exception.AccountNotFoundException;
 import com.abdou.microblogging.role.Role;
 import com.abdou.microblogging.role.RoleRepository;
 import org.springframework.data.domain.Pageable;

@@ -2,7 +2,7 @@ package com.abdou.microblogging.post;
 
 import com.abdou.microblogging.account.Account;
 import com.abdou.microblogging.account.AccountRepository;
-import com.abdou.microblogging.common.exceptions.PostNotFoundException;
+import com.abdou.microblogging.post.exception.PostNotFoundException;
 import com.abdou.microblogging.post.dto.PostDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
