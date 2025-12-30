@@ -1,4 +1,4 @@
-package com.abdou.microblogging.common.advices;
+package com.abdou.microblogging.common;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -12,14 +12,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
-public class MVCExceptionAdvice extends ResponseEntityExceptionHandler {
+public class MVCExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers,
                                                                   HttpStatusCode status,
                                                                   WebRequest request) {
-
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error -> {
             String fieldName = error.getField();

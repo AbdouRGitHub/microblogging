@@ -1,15 +1,15 @@
-package com.abdou.microblogging.common.advices;
+package com.abdou.microblogging.account;
 
-import com.abdou.microblogging.common.exceptions.PostNotFoundException;
+import com.abdou.microblogging.account.exception.AccountNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
-class PostExceptionAdvice {
-    @ExceptionHandler(PostNotFoundException.class)
-    public ResponseEntity<String> postNotFound(PostNotFoundException e) {
+public class AccountExceptionHandler {
+    @ExceptionHandler(AccountNotFoundException.class)
+    public ResponseEntity<String> accountNotFound(AccountNotFoundException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 }

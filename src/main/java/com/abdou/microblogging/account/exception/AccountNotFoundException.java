@@ -1,4 +1,4 @@
-package com.abdou.microblogging.common.exceptions;
+package com.abdou.microblogging.account.exception;
 
 import java.util.UUID;
 
