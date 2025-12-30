@@ -68,7 +68,8 @@ public class PostController {
 
     @GetMapping("/{id}/likes")
     public ResponseEntity<Integer> getPostLikes(@PathVariable UUID id) {
-        return likeService.getNumberOfLikes(id);
+        int likes = likeService.getNumberOfLikes(id);
+        return ResponseEntity.ok(likes);
     }
 
 

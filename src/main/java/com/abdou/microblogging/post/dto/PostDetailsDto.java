@@ -11,6 +11,8 @@ public record PostDetailsDto(
         UUID id,
         String content,
         int likes,
+        boolean liked,
+        int comments,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         AccountDetailsDto account
@@ -19,6 +21,8 @@ public record PostDetailsDto(
         return new PostDetailsDto(post.getId(),
                 post.getContent(),
                 likes,
+                false,
+                0,
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
                 AccountDetailsDto.toDto(post.getAccount()));

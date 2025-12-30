@@ -27,9 +27,7 @@ public class LikeService {
         return ResponseEntity.ok(like);
     }
 
-    public ResponseEntity<Integer> getNumberOfLikes(UUID postId) {
-        return ResponseEntity.ok(
-                likeRepository.countByPostId(postId)
-        );
+    public int getNumberOfLikes(UUID postId) {
+        return likeRepository.countByPostId(postId);
     }
 }
