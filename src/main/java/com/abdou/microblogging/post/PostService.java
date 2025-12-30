@@ -1,9 +1,9 @@
 package com.abdou.microblogging.post;
 
 import com.abdou.microblogging.account.Account;
-import com.abdou.microblogging.account.AccountRepository;
+import com.abdou.microblogging.like.LikeRepository;
+import com.abdou.microblogging.post.dto.PostDetailsDto;
 import com.abdou.microblogging.post.exception.PostNotFoundException;
-import com.abdou.microblogging.post.dto.PostDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
@@ -17,69 +17,87 @@ import java.util.UUID;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final LikeRepository likeRepository;
 
     PostService(PostRepository postRepository,
-                AccountRepository accountRepository
+                LikeRepository likeRepository
     ) {
         this.postRepository = postRepository;
+        this.likeRepository = likeRepository;
     }
 
     public ResponseEntity<Post> createPost(Account account,
-                                           PostDto postDto
+                                           PostDetailsDto postDetailsDto
     ) {
-        Post post = new Post(postDto.content(), account);
+        Post post = new Post(postDetailsDto.content(), account);
         Post saved = postRepository.save(post);
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<PagedModel<PostDto>> getLatestPosts(int page) {
+    public ResponseEntity<PagedModel<PostDetailsDto>> getLatestPosts(int page) {
         Page<Post> posts =
                 postRepository.findLatestPosts(Pageable.ofSize(10)
                         .withPage(page - 1));
         return ResponseEntity.ok()
-                .body(new PagedModel<>(posts.map(PostDto::toPostResponseDto)));
+                .body(new PagedModel<>(posts.map(post -> {
+                    int likes = likeRepository.countByPostId(post.getId());
+                    return PostDetailsDto.toPostResponseDto(post, likes);
+                })));
     }
 
-    public ResponseEntity<PagedModel<PostDto>> getPaginatedComments(UUID postId,
-                                                                    int page
+    public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedComments(UUID postId,
+                                                                           int page
     ) {
         Page<Post> posts =
                 postRepository.findLatestComments(Pageable.ofSize(10)
                         .withPage(page - 1), postId);
         return ResponseEntity.ok()
-                .body(new PagedModel<>(posts.map(PostDto::toPostResponseDto)));
+                .body(new PagedModel<>(posts.map(post -> {
+                    int likes = likeRepository.countByPostId(post.getId());
+                    return PostDetailsDto.toPostResponseDto(post, likes);
+                })));
     }
 
-    public ResponseEntity<PostDto> getPostInfo(UUID id) {
+    public ResponseEntity<PostDetailsDto> getPostInfo(UUID id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new PostNotFoundException(id));
-        return ResponseEntity.ok(PostDto.toPostResponseDto(post));
+        int likes = likeRepository.countByPostId(id);
+        return ResponseEntity.ok(PostDetailsDto.toPostResponseDto(post, likes));
     }
 
-    public ResponseEntity<PagedModel<PostDto>> getPaginatedUserPosts(UUID userId,
-                                                                     int page
+    public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedUserPosts(UUID userId,
+                                                                            int page
     ) {
         Page<Post> posts = postRepository.findUserPosts(Pageable.ofSize(10)
                 .withPage(page - 1), userId);
 
-        return ResponseEntity.ok(new PagedModel<>(posts.map(PostDto::toPostResponseDto)));
+        return ResponseEntity.ok(new PagedModel<>(posts.map(post -> {
+            int likes = likeRepository.countByPostId(post.getId());
+            return PostDetailsDto.toPostResponseDto(post, likes);
+        })));
     }
 
-    public ResponseEntity<PagedModel<PostDto>> getPaginatedUserReplies(UUID userId,
-                                                                     int page
+    public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedUserReplies(
+            UUID userId,
+            int page
     ) {
         Page<Post> posts = postRepository.findUserReplies(Pageable.ofSize(10)
                 .withPage(page - 1), userId);
 
-        return ResponseEntity.ok(new PagedModel<>(posts.map(PostDto::toPostResponseDto)));
+        return ResponseEntity.ok(new PagedModel<>(posts.map(post -> {
+            int likes = likeRepository.countByPostId(post.getId());
+            return PostDetailsDto.toPostResponseDto(post, likes);
+        })));
     }
 
-    public ResponseEntity<Post> updatePost(PostDto postDto, UUID id) {
+    public ResponseEntity<Post> updatePost(PostDetailsDto postDetailsDto,
+                                           UUID id
+    ) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new PostNotFoundException(id));
 
-        if (postDto.content() != null) {
-            post.setContent(postDto.content());
+        if (postDetailsDto.content() != null) {
+            post.setContent(postDetailsDto.content());
         }
 
         return ResponseEntity.ok(postRepository.save(post));

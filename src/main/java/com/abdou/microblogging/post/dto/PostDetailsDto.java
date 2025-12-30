@@ -7,22 +7,28 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public record PostDto(
+public record PostDetailsDto(
         UUID id,
         String content,
+        int likes,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         AccountDetailsDto account
 ) {
-    public static PostDto toPostResponseDto(Post post) {
-        return new PostDto(post.getId(),
+    public static PostDetailsDto toPostResponseDto(Post post, int likes) {
+        return new PostDetailsDto(post.getId(),
                 post.getContent(),
+                likes,
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
                 AccountDetailsDto.toDto(post.getAccount()));
     }
 
-    public static List<PostDto> toPostResponseDtoList(List<Post> posts) {
-        return posts.stream().map(PostDto::toPostResponseDto).toList();
+    public static List<PostDetailsDto> toPostResponseDtoList(List<Post> posts,
+                                                             int likes
+    ) {
+        return posts.stream()
+                .map((post -> toPostResponseDto(post, likes)))
+                .toList();
     }
 }

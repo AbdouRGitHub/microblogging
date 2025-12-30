@@ -1,6 +1,7 @@
 package com.abdou.microblogging.post;
 
 import com.abdou.microblogging.account.Account;
+import com.abdou.microblogging.like.Like;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -30,15 +31,16 @@ public class Post {
     private LocalDateTime updatedAt;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "account_id")
     private Account account;
 
     @ManyToOne
-    @JoinColumn(name = "parent_id")
     private Post parent;
 
     @OneToMany(mappedBy = "parent", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Post> replies = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Like> likes = new ArrayList<>();
 
     public Post() {
     }

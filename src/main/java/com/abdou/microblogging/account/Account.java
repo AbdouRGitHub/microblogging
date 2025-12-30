@@ -1,8 +1,8 @@
 package com.abdou.microblogging.account;
 
+import com.abdou.microblogging.like.Like;
 import com.abdou.microblogging.post.Post;
 import com.abdou.microblogging.role.Role;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -50,6 +50,9 @@ public class Account implements UserDetails, CredentialsContainer {
 
     @OneToMany(mappedBy = "account", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "account", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Like> likes = new ArrayList<>();
 
     public Account() {
     }

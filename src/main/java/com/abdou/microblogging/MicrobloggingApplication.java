@@ -3,6 +3,8 @@ package com.abdou.microblogging;
 import com.abdou.microblogging.account.Account;
 import com.abdou.microblogging.account.AccountRepository;
 import com.abdou.microblogging.common.CustomUserDetailsService;
+import com.abdou.microblogging.like.Like;
+import com.abdou.microblogging.like.LikeRepository;
 import com.abdou.microblogging.post.Post;
 import com.abdou.microblogging.post.PostRepository;
 import com.abdou.microblogging.role.Role;
@@ -29,7 +31,9 @@ import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.COOKIES;
 
@@ -46,6 +50,7 @@ public class MicrobloggingApplication {
     public CommandLineRunner initDatabase(RoleRepository roleRepository,
                                           AccountRepository accountRepository,
                                           PostRepository postRepository,
+                                          LikeRepository likeRepository,
                                           PasswordEncoder passwordEncoder
     ) {
         return args -> {
@@ -58,6 +63,9 @@ public class MicrobloggingApplication {
             userRole = roleRepository.save(userRole);
             adminRole = roleRepository.save(adminRole);
 
+            List<Account> allAccounts = new ArrayList<>();
+            List<Post> allPosts = new ArrayList<>();
+
             // 20 utilisateurs (user1: ADMIN, autres: USER)
             for (int i = 1; i <= 20; i++) {
                 boolean isAdmin = (i == 1);
@@ -68,12 +76,14 @@ public class MicrobloggingApplication {
                         passwordEncoder.encode("password123"),
                         mainRole);
                 account = accountRepository.save(account);
+                allAccounts.add(account);
 
                 for (int p = 1; p <= 3; p++) {
                     Post post =
                             new Post("Post " + p + " de " + account.getUsername(),
                                     account);
                     post = postRepository.save(post);
+                    allPosts.add(post);
 
                     for (int c = 1; c <= 5; c++) {
                         Post comment =
@@ -90,6 +100,17 @@ public class MicrobloggingApplication {
                             postRepository.save(reply);
                         }
                     }
+                }
+            }
+
+            // Peuplement des likes
+            for (Post post : allPosts) {
+                // Chaque post reçoit des likes d'utilisateurs aléatoires (entre 0 et 10 likes)
+                int likesCount = (int) (Math.random() * 11);
+                for (int l = 0; l < likesCount; l++) {
+                    Account randomAccount = allAccounts.get((int) (Math.random() * allAccounts.size()));
+                    Like like = new Like(post, randomAccount);
+                    likeRepository.save(like);
                 }
             }
         };
