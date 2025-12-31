@@ -3,7 +3,7 @@ package com.abdou.microblogging.role.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record RoleResponseDto(
+public record RoleDetailsDto(
         UUID id,
         String name,
         LocalDateTime createdAt,
