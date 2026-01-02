@@ -28,37 +28,6 @@ public class PostController {
         return postService.createPost(account, postDetailsDto);
     }
 
-    @GetMapping()
-    public ResponseEntity<PagedModel<PostDetailsDto>> getLatestPosts(@RequestParam(defaultValue = "1") int page) {
-        return postService.getLatestPosts(page);
-    }
-
-    @GetMapping("/{id}/comments")
-    public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedComments(@PathVariable("id") UUID postId,
-                                                                           @RequestParam(defaultValue = "1") int page
-    ) {
-        return postService.getPaginatedComments(postId, page);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<PostDetailsDto> getPostInfo(@PathVariable UUID id) {
-        return postService.getPostInfo(id);
-    }
-
-    @GetMapping("/by-user/{id}")
-    public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedUserPosts(@PathVariable UUID id,
-                                                                            @RequestParam(defaultValue = "1") int page
-    ) {
-        return postService.getPaginatedUserPosts(id, page);
-    }
-
-    @GetMapping("/by-user/{id}/replies")
-    public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedUserReplies(@PathVariable UUID id,
-                                                                              @RequestParam(defaultValue = "1") int page
-    ) {
-        return postService.getPaginatedUserReplies(id, page);
-    }
-
     @PostMapping("/{id}/likes")
     public void createLike(@PathVariable UUID id,
                            @AuthenticationPrincipal Account account
@@ -66,12 +35,43 @@ public class PostController {
         likeService.createLike(id, account);
     }
 
-    @GetMapping("/{id}/likes")
-    public ResponseEntity<Integer> getPostLikes(@PathVariable UUID id) {
-        int likes = likeService.getNumberOfLikes(id);
-        return ResponseEntity.ok(likes);
+    @GetMapping()
+    public ResponseEntity<PagedModel<PostDetailsDto>> getLatestPosts(@RequestParam(defaultValue = "1") int page,
+                                                                     @AuthenticationPrincipal Account account
+    ) {
+        return postService.getLatestPosts(page, account);
     }
 
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedComments(@PathVariable("id") UUID postId,
+                                                                           @RequestParam(defaultValue = "1") int page,
+                                                                           @AuthenticationPrincipal Account account
+    ) {
+        return postService.getPaginatedComments(postId, page, account);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PostDetailsDto> getPostInfo(@PathVariable UUID id,
+                                                      @AuthenticationPrincipal Account account
+    ) {
+        return postService.getPostInfo(id, account);
+    }
+
+    @GetMapping("/by-user/{id}")
+    public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedUserPosts(@PathVariable UUID id,
+                                                                            @RequestParam(defaultValue = "1") int page,
+                                                                            @AuthenticationPrincipal Account account
+    ) {
+        return postService.getPaginatedUserPosts(id, page, account);
+    }
+
+    @GetMapping("/by-user/{id}/replies")
+    public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedUserReplies(@PathVariable UUID id,
+                                                                              @RequestParam(defaultValue = "1") int page,
+                                                                              @AuthenticationPrincipal Account account
+    ) {
+        return postService.getPaginatedUserReplies(id, page, account);
+    }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Post> updatePost(@RequestBody PostDetailsDto postDetailsDto,
