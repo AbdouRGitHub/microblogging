@@ -108,7 +108,8 @@ public class MicrobloggingApplication {
                 // Chaque post reçoit des likes d'utilisateurs aléatoires (entre 0 et 10 likes)
                 int likesCount = (int) (Math.random() * 11);
                 for (int l = 0; l < likesCount; l++) {
-                    Account randomAccount = allAccounts.get((int) (Math.random() * allAccounts.size()));
+                    Account randomAccount =
+                            allAccounts.get((int) (Math.random() * allAccounts.size()));
                     Like like = new Like(post, randomAccount);
                     likeRepository.save(like);
                 }
@@ -157,8 +158,10 @@ public class MicrobloggingApplication {
     UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("https://example.com",
-                "http://localhost:5173/"));
+                "http://localhost:5173"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
