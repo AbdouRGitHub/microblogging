@@ -13,6 +13,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -118,9 +119,22 @@ public class MicrobloggingApplication {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.authorizeHttpRequests((authorize) -> authorize.requestMatchers(
-                                "/auth/login")
+    @Order(1)
+    public SecurityFilterChain publicSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher(
+                        "/auth/login",
+                        "/auth/sessionExpired",
+                        "/auth/logoutSuccess",
+                        "/accounts",
+                        "/accounts/**",
+                        "/posts/**",
+                        "/comments/**"
+                )
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/auth/login",
+                                "/auth/sessionExpired",
+                                "/auth/logoutSuccess")
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/accounts")
                         .permitAll()
@@ -128,29 +142,48 @@ public class MicrobloggingApplication {
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts/**")
                         .permitAll()
-                        .requestMatchers("/posts/**")
-                        .hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/comments/**")
                         .permitAll()
-                        .requestMatchers("/comments/**")
-                        .hasAnyRole("USER", "ADMIN")
-                        .anyRequest()
-                        .authenticated())
-                .sessionManagement(session -> session.invalidSessionUrl(
-                                "/auth/sessionExpired")
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false))
+                )
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .logout((logout) -> logout.logoutUrl("/auth/logout")
+                .build();
+    }
+
+    // SecurityFilterChain pour les routes authentifiées
+    @Bean
+    @Order(2)
+    public SecurityFilterChain authenticatedSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/posts/**")
+                        .hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/comments/**")
+                        .hasAnyRole("USER", "ADMIN")
+                        .anyRequest()
+                        .authenticated()
+                )
+                .sessionManagement(session -> session
+                        .invalidSessionUrl("/auth/sessionExpired")
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
+                )
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .logout((logout) -> logout
+                        .logoutUrl("/auth/logout")
                         .logoutSuccessUrl("/auth/logoutSuccess")
+                        .permitAll()
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
-                        .addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(
-                                COOKIES)))
-                        .permitAll())
+                        .addLogoutHandler(new HeaderWriterLogoutHandler(
+                                new ClearSiteDataHeaderWriter(COOKIES)))
+                        .permitAll()
+                )
                 .build();
     }
 

@@ -46,7 +46,7 @@ public class AuthService {
     }
 
     public ResponseEntity<?> sessionExpired() {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Session has expired");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("SESSION_EXPIRED");
     }
 
     public ResponseEntity<?> logout() {
