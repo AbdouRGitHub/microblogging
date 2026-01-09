@@ -152,7 +152,6 @@ public class MicrobloggingApplication {
                 .build();
     }
 
-    // SecurityFilterChain pour les routes authentifiées
     @Bean
     @Order(2)
     public SecurityFilterChain authenticatedSecurityFilterChain(HttpSecurity http) throws Exception {
