@@ -22,7 +22,7 @@ public class PostController {
     }
 
     @PostMapping()
-    public ResponseEntity<Post> createPost(@AuthenticationPrincipal Account account,
+    public ResponseEntity<PostDetailsDto> createPost(@AuthenticationPrincipal Account account,
                                            @RequestBody PostDetailsDto postDetailsDto
     ) {
         return postService.createPost(account, postDetailsDto);

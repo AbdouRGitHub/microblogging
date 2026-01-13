@@ -126,10 +126,9 @@ public class MicrobloggingApplication {
                         "/auth/login",
                         "/auth/sessionExpired",
                         "/auth/logoutSuccess",
-                        "/accounts",
-                        "/accounts/**",
                         "/posts/**",
-                        "/comments/**"
+                        "/comments/**",
+                        "/accounts/**"
                 )
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/auth/login",
@@ -144,6 +143,7 @@ public class MicrobloggingApplication {
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/comments/**")
                         .permitAll()
+                        .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
@@ -157,10 +157,6 @@ public class MicrobloggingApplication {
     public SecurityFilterChain authenticatedSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/posts/**")
-                        .hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/comments/**")
-                        .hasAnyRole("USER", "ADMIN")
                         .anyRequest()
                         .authenticated()
                 )

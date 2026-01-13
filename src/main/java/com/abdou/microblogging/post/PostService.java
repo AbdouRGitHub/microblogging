@@ -25,12 +25,12 @@ public class PostService {
         this.likeService = likeService;
     }
 
-    public ResponseEntity<Post> createPost(Account account,
+    public ResponseEntity<PostDetailsDto> createPost(Account account,
                                            PostDetailsDto postDetailsDto
     ) {
         Post post = new Post(postDetailsDto.content(), account);
         Post saved = postRepository.save(post);
-        return new ResponseEntity<>(saved, HttpStatus.CREATED);
+        return new ResponseEntity<>(PostDetailsDto.toDto(saved, 0, null), HttpStatus.CREATED);
     }
 
     public ResponseEntity<PagedModel<PostDetailsDto>> getLatestPosts(int page,
