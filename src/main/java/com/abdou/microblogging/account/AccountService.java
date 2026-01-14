@@ -56,10 +56,11 @@ public class AccountService {
         return ResponseEntity.ok().body(details);
     }
 
-    public ResponseEntity<?> getAccountInfo(Account account) {
-        return ResponseEntity.ok()
-                .body(accountRepository.findById(account.getId())
-                        .orElseThrow(() -> new AccountNotFoundException(account.getId())));
+    public ResponseEntity<AccountDetailsDto> getAccountInfo(Account account) {
+        Account me = accountRepository.findById(account.getId())
+                .orElseThrow(() -> new AccountNotFoundException(account.getId()));
+
+        return ResponseEntity.ok(AccountDetailsDto.toDto(me));
     }
 
     public ResponseEntity<Account> updateAccount(UpdateAccountDto updateAccountDto,

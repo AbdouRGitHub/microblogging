@@ -36,7 +36,7 @@ public class AccountController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> getAccountInfo(@AuthenticationPrincipal Account account) {
+    public ResponseEntity<AccountDetailsDto> getAccountInfo(@AuthenticationPrincipal Account account) {
         return accountService.getAccountInfo(account);
     }
 

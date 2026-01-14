@@ -29,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
@@ -37,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.COOKIES;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.withDefaults;
 
 @SpringBootApplication
 @EnableJpaAuditing
@@ -121,6 +123,7 @@ public class MicrobloggingApplication {
     @Bean
     @Order(1)
     public SecurityFilterChain publicSecurityFilterChain(HttpSecurity http) throws Exception {
+        PathPatternRequestMatcher.Builder mvc = withDefaults();
         return http
                 .securityMatcher(
                         "/auth/login",
@@ -139,7 +142,11 @@ public class MicrobloggingApplication {
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/accounts/**")
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/posts/**")
+                        .requestMatchers(HttpMethod.GET, "/posts")
+                        .permitAll()
+                        .requestMatchers(mvc.matcher(HttpMethod.GET, "/posts/{id}"))
+                        .permitAll()
+                        .requestMatchers(mvc.matcher(HttpMethod.GET, "/posts/by-user/{id}"))
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/comments/**")
                         .permitAll()
