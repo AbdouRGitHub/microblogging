@@ -32,6 +32,19 @@ public class LikeService {
         return ResponseEntity.ok(like);
     }
 
+    public ResponseEntity<Object> deleteLike(UUID postId, Account account) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
+        if (!isLikedByAccount(postId, account)) {
+            return ResponseEntity.status(409)
+                    .body("You haven't liked this post.");
+        }
+        Like like = likeRepository.findByAccountAndPost(account, post);
+        likeRepository.delete(like);
+        return ResponseEntity.ok().build();
+
+    }
+
     public int getNumberOfLikes(UUID postId) {
         return likeRepository.countByPostId(postId);
     }

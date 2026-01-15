@@ -29,10 +29,17 @@ public class PostController {
     }
 
     @PostMapping("/{id}/likes")
-    public void createLike(@PathVariable UUID id,
+    public ResponseEntity<Object> createLike(@PathVariable UUID id,
                            @AuthenticationPrincipal Account account
     ) {
-        likeService.createLike(id, account);
+        return likeService.createLike(id, account);
+    }
+
+    @DeleteMapping("/{id}/likes")
+    public ResponseEntity<Object> deleteLike(@PathVariable UUID id,
+                                             @AuthenticationPrincipal Account account
+    ) {
+        return likeService.deleteLike(id, account);
     }
 
     @GetMapping()

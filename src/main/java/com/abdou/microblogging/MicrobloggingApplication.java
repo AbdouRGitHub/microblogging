@@ -195,7 +195,7 @@ public class MicrobloggingApplication {
         configuration.setAllowedOrigins(Arrays.asList("https://example.com",
                 "http://localhost:5173"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
