@@ -3,6 +3,7 @@ package com.abdou.microblogging.post;
 import com.abdou.microblogging.account.Account;
 import com.abdou.microblogging.like.LikeService;
 import com.abdou.microblogging.like.dto.LikeDetailsDto;
+import com.abdou.microblogging.post.dto.CreatePostDto;
 import com.abdou.microblogging.post.dto.PostDetailsDto;
 import com.abdou.microblogging.post.exception.PostNotFoundException;
 import org.springframework.data.domain.Page;
@@ -26,11 +27,23 @@ public class PostService {
     }
 
     public ResponseEntity<PostDetailsDto> createPost(Account account,
-                                           PostDetailsDto postDetailsDto
+                                                     CreatePostDto createPostDto
     ) {
-        Post post = new Post(postDetailsDto.content(), account);
+        Post post = new Post(createPostDto.content(), account);
         Post saved = postRepository.save(post);
-        return new ResponseEntity<>(PostDetailsDto.toDto(saved, 0, null), HttpStatus.CREATED);
+        return new ResponseEntity<>(PostDetailsDto.toDto(saved, 0, null),
+                HttpStatus.CREATED);
+    }
+
+    public ResponseEntity<Object> createComment(UUID postId,
+                                                CreatePostDto createPostDto,
+                                                Account account
+    ) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
+        Post commentPost = new Post(createPostDto.content(), account, post);
+        postRepository.save(commentPost);
+        return ResponseEntity.ok().build();
     }
 
     public ResponseEntity<PagedModel<PostDetailsDto>> getLatestPosts(int page,

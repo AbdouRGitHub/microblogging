@@ -124,17 +124,15 @@ public class MicrobloggingApplication {
     @Order(1)
     public SecurityFilterChain publicSecurityFilterChain(HttpSecurity http) throws Exception {
         PathPatternRequestMatcher.Builder mvc = withDefaults();
-        return http
-                .securityMatcher(
-                        "/auth/login",
+        return http.securityMatcher("/auth/login",
                         "/auth/sessionExpired",
                         "/auth/logoutSuccess",
                         "/posts/**",
                         "/comments/**",
-                        "/accounts/**"
-                )
+                        "/accounts/**")
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/auth/login",
+                        .requestMatchers(
+                                "/auth/login",
                                 "/auth/sessionExpired",
                                 "/auth/logoutSuccess")
                         .permitAll()
@@ -144,14 +142,16 @@ public class MicrobloggingApplication {
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts")
                         .permitAll()
-                        .requestMatchers(mvc.matcher(HttpMethod.GET, "/posts/{id}"))
+                        .requestMatchers(mvc.matcher(HttpMethod.GET,
+                                "/posts/{id}"))
                         .permitAll()
-                        .requestMatchers(mvc.matcher(HttpMethod.GET, "/posts/by-user/{id}"))
+                        .requestMatchers(mvc.matcher(HttpMethod.GET,
+                                "/posts/by-user/{id}"))
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/comments/**")
                         .permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest()
+                        .authenticated())
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .httpBasic(AbstractHttpConfigurer::disable)
@@ -162,30 +162,24 @@ public class MicrobloggingApplication {
     @Bean
     @Order(2)
     public SecurityFilterChain authenticatedSecurityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .authorizeHttpRequests((authorize) -> authorize
-                        .anyRequest()
-                        .authenticated()
-                )
-                .sessionManagement(session -> session
-                        .invalidSessionUrl("/auth/sessionExpired")
+        return http.authorizeHttpRequests((authorize) -> authorize.anyRequest()
+                        .authenticated())
+                .sessionManagement(session -> session.invalidSessionUrl(
+                                "/auth/sessionExpired")
                         .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false)
-                )
+                        .maxSessionsPreventsLogin(false))
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .logout((logout) -> logout
-                        .logoutUrl("/auth/logout")
+                .logout((logout) -> logout.logoutUrl("/auth/logout")
                         .logoutSuccessUrl("/auth/logoutSuccess")
                         .permitAll()
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
-                        .addLogoutHandler(new HeaderWriterLogoutHandler(
-                                new ClearSiteDataHeaderWriter(COOKIES)))
-                        .permitAll()
-                )
+                        .addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(
+                                COOKIES)))
+                        .permitAll())
                 .build();
     }
 
@@ -195,7 +189,10 @@ public class MicrobloggingApplication {
         configuration.setAllowedOrigins(Arrays.asList("https://example.com",
                 "http://localhost:5173"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+        configuration.setAllowedMethods(Arrays.asList("GET",
+                "POST",
+                "PUT",
+                "DELETE"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
@@ -222,5 +219,4 @@ public class MicrobloggingApplication {
         authenticationProvider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(authenticationProvider);
     }
-
 }

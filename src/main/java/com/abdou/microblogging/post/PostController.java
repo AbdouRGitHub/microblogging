@@ -2,7 +2,9 @@ package com.abdou.microblogging.post;
 
 import com.abdou.microblogging.account.Account;
 import com.abdou.microblogging.like.LikeService;
+import com.abdou.microblogging.post.dto.CreatePostDto;
 import com.abdou.microblogging.post.dto.PostDetailsDto;
+import jakarta.validation.Valid;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,14 +25,22 @@ public class PostController {
 
     @PostMapping()
     public ResponseEntity<PostDetailsDto> createPost(@AuthenticationPrincipal Account account,
-                                           @RequestBody PostDetailsDto postDetailsDto
+                                                     @Valid @RequestBody CreatePostDto createPostDto
     ) {
-        return postService.createPost(account, postDetailsDto);
+        return postService.createPost(account, createPostDto);
+    }
+
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<Object> createComment(@PathVariable UUID id,
+                                                @Valid @RequestBody CreatePostDto createPostDto,
+                                                @AuthenticationPrincipal Account account
+    ) {
+        return postService.createComment(id, createPostDto, account);
     }
 
     @PostMapping("/{id}/likes")
     public ResponseEntity<Object> createLike(@PathVariable UUID id,
-                           @AuthenticationPrincipal Account account
+                                             @AuthenticationPrincipal Account account
     ) {
         return likeService.createLike(id, account);
     }
