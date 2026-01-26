@@ -1,9 +1,9 @@
 package com.abdou.microblogging.account.dto;
 
 import com.abdou.microblogging.account.Account;
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
@@ -19,16 +19,14 @@ public record UpdateAccountDto(
                        max = 20,
                        message = "Password should contain at least 6 characters") String> password) {
     public Account toAccount(Account account) {
-        System.out.println("Before - password: " + account.getPassword());
 
         username().ifPresent(account::setUsername);
         email().ifPresent(account::setEmail);
         password().ifPresent(u -> {
-            System.out.println("Setting password to: " + u);
-            account.setPassword(u);
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
+            account.setPassword(encoder.encode(u));
         });
 
-        System.out.println("After - password: " + account.getPassword());
         return account;
     }
 }
