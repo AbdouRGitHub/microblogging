@@ -1,6 +1,7 @@
 package com.abdou.microblogging.account;
 
 import com.abdou.microblogging.account.dto.AccountDetailsDto;
+import com.abdou.microblogging.account.dto.AccountSummaryDto;
 import com.abdou.microblogging.account.dto.CreateAccountDto;
 import com.abdou.microblogging.account.dto.UpdateAccountDto;
 import com.abdou.microblogging.account.exception.AccountNotFoundException;
@@ -41,44 +42,43 @@ public class AccountService {
         return new ResponseEntity<>(account, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<PagedModel<AccountDetailsDto>> getPaginatedAccounts(
+    public ResponseEntity<PagedModel<AccountSummaryDto>> getPaginatedAccounts(
             int page
     ) {
         return ResponseEntity.ok()
                 .body(new PagedModel<>(accountRepository.findAll(Pageable.ofSize(
-                        10).withPage(page - 1)).map(AccountDetailsDto::toDto)));
+                        10).withPage(page - 1)).map(AccountSummaryDto::toDto)));
     }
 
-    public ResponseEntity<AccountDetailsDto> getAccountInfo(UUID id) {
+    public ResponseEntity<AccountSummaryDto> getAccountInfo(UUID id) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new AccountNotFoundException(id));
-        AccountDetailsDto details = AccountDetailsDto.toDto(account);
+        AccountSummaryDto details = AccountSummaryDto.toDto(account);
         return ResponseEntity.ok().body(details);
     }
 
-    public ResponseEntity<AccountDetailsDto> getAccountInfo(Account account) {
+    public ResponseEntity<AccountSummaryDto> getAccountSummary(Account account) {
+        Account me = accountRepository.findById(account.getId())
+                .orElseThrow(() -> new AccountNotFoundException(account.getId()));
+
+        return ResponseEntity.ok(AccountSummaryDto.toDto(me));
+    }
+
+    public ResponseEntity<AccountDetailsDto> getAccountDetails(Account account) {
         Account me = accountRepository.findById(account.getId())
                 .orElseThrow(() -> new AccountNotFoundException(account.getId()));
 
         return ResponseEntity.ok(AccountDetailsDto.toDto(me));
     }
 
-    public ResponseEntity<Account> updateAccount(UpdateAccountDto updateAccountDto,
-                                                 UUID id
+    public ResponseEntity<Void> updateAccount(UpdateAccountDto updateAccountDto,
+                                              Account account
     ) {
-        Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new AccountNotFoundException(id));
+        Account fullAccount = accountRepository.findById(account.getId())
+                .orElseThrow(() -> new AccountNotFoundException(account.getId()));
 
-        if (updateAccountDto.username() != null) {
-            account.setUsername(updateAccountDto.username());
-        }
-        if (updateAccountDto.email() != null) {
-            account.setEmail(updateAccountDto.email());
-        }
-        if (updateAccountDto.password() != null) {
-            account.setPassword(updateAccountDto.password());
-        }
-        return ResponseEntity.ok(accountRepository.save(account));
+        accountRepository.save(updateAccountDto.toAccount(fullAccount));
+        return ResponseEntity.ok().build();
     }
 
     public ResponseEntity<?> deleteAccount(UUID id) {

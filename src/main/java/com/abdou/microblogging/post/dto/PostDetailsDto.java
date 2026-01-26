@@ -1,6 +1,6 @@
 package com.abdou.microblogging.post.dto;
 
-import com.abdou.microblogging.account.dto.AccountDetailsDto;
+import com.abdou.microblogging.account.dto.AccountSummaryDto;
 import com.abdou.microblogging.like.dto.LikeDetailsDto;
 import com.abdou.microblogging.post.Post;
 
@@ -14,7 +14,7 @@ public record PostDetailsDto(
         int commentsCount,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        AccountDetailsDto account
+        AccountSummaryDto account
 ) {
     public static PostDetailsDto toDto(Post post, int commentsCount,
                                        LikeDetailsDto like
@@ -25,6 +25,6 @@ public record PostDetailsDto(
                 commentsCount,
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
-                AccountDetailsDto.toDto(post.getAccount()));
+                AccountSummaryDto.toDto(post.getAccount()));
     }
 }

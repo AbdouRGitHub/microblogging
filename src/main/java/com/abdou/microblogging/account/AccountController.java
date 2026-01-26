@@ -1,6 +1,7 @@
 package com.abdou.microblogging.account;
 
 import com.abdou.microblogging.account.dto.AccountDetailsDto;
+import com.abdou.microblogging.account.dto.AccountSummaryDto;
 import com.abdou.microblogging.account.dto.CreateAccountDto;
 import com.abdou.microblogging.account.dto.UpdateAccountDto;
 import jakarta.validation.Valid;
@@ -26,25 +27,30 @@ public class AccountController {
     }
 
     @GetMapping()
-    public ResponseEntity<PagedModel<AccountDetailsDto>> getPaginatedAccounts(@RequestParam(defaultValue = "1") int page) {
+    public ResponseEntity<PagedModel<AccountSummaryDto>> getPaginatedAccounts(@RequestParam(defaultValue = "1") int page) {
         return accountService.getPaginatedAccounts(page);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AccountDetailsDto> getAccountInfo(@PathVariable UUID id) {
+    public ResponseEntity<AccountSummaryDto> getAccountInfo(@PathVariable UUID id) {
         return accountService.getAccountInfo(id);
     }
 
     @GetMapping("/me")
-    public ResponseEntity<AccountDetailsDto> getAccountInfo(@AuthenticationPrincipal Account account) {
-        return accountService.getAccountInfo(account);
+    public ResponseEntity<AccountSummaryDto> getAccountSummary(@AuthenticationPrincipal Account account) {
+        return accountService.getAccountSummary(account);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Account> updateAccount(@Valid @RequestBody UpdateAccountDto updateAccountDto,
+    @GetMapping("/me/details")
+    public ResponseEntity<AccountDetailsDto> getAccountDetails(@AuthenticationPrincipal Account account) {
+        return accountService.getAccountDetails(account);
+    }
+
+    @PatchMapping()
+    public ResponseEntity<Void> updateAccount(@Valid @RequestBody UpdateAccountDto updateAccountDto,
                                                  @AuthenticationPrincipal Account account
     ) {
-        return accountService.updateAccount(updateAccountDto, account.getId());
+        return accountService.updateAccount(updateAccountDto, account);
     }
 
     @DeleteMapping("/{id}")
