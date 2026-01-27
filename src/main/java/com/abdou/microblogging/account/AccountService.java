@@ -5,6 +5,8 @@ import com.abdou.microblogging.account.dto.AccountSummaryDto;
 import com.abdou.microblogging.account.dto.CreateAccountDto;
 import com.abdou.microblogging.account.dto.UpdateAccountDto;
 import com.abdou.microblogging.account.exception.AccountNotFoundException;
+import com.abdou.microblogging.common.exception.InvalidPasswordException;
+import com.abdou.microblogging.common.exception.PasswordIsMissingException;
 import com.abdou.microblogging.role.Role;
 import com.abdou.microblogging.role.RoleRepository;
 import org.springframework.data.domain.Pageable;
@@ -74,9 +76,18 @@ public class AccountService {
     public ResponseEntity<Void> updateAccount(UpdateAccountDto updateAccountDto,
                                               Account account
     ) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
         Account fullAccount = accountRepository.findById(account.getId())
                 .orElseThrow(() -> new AccountNotFoundException(account.getId()));
-
+        if (updateAccountDto.newPassword().isPresent()) {
+            String current = updateAccountDto.currentPassword()
+                    .orElseThrow(() -> new PasswordIsMissingException(
+                            "Current password is required"));
+            if (!encoder.matches(current, fullAccount.getPassword())) {
+                throw new InvalidPasswordException(
+                        "Current password is incorrect");
+            }
+        }
         accountRepository.save(updateAccountDto.toAccount(fullAccount));
         return ResponseEntity.ok().build();
     }

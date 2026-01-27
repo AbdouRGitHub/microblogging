@@ -15,14 +15,16 @@ public record UpdateAccountDto(
 
         Optional<@Email(message = "Email is not valid") String> email,
 
+        Optional<String> currentPassword,
+
         Optional<@Size(min = 6,
                        max = 20,
-                       message = "Password should contain at least 6 characters") String> password) {
+                       message = "New password should contain at least 6 characters") String> newPassword) {
     public Account toAccount(Account account) {
 
         username().ifPresent(account::setUsername);
         email().ifPresent(account::setEmail);
-        password().ifPresent(u -> {
+        newPassword().ifPresent(u -> {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
             account.setPassword(encoder.encode(u));
         });

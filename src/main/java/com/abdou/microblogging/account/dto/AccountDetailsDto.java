@@ -9,14 +9,12 @@ public record AccountDetailsDto(
         UUID id,
         String username,
         String email,
-        String password,
         LocalDateTime createdAt
 ) {
     public static AccountDetailsDto toDto(Account account) {
         return new AccountDetailsDto(account.getId(),
                 account.getUsername(),
                 account.getEmail(),
-                account.getPassword(),
                 account.getCreatedAt());
     }
 }
