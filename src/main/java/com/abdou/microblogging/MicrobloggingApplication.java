@@ -192,6 +192,7 @@ public class MicrobloggingApplication {
         configuration.setAllowedMethods(Arrays.asList("GET",
                 "POST",
                 "PUT",
+                "PATCH",
                 "DELETE"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source =
