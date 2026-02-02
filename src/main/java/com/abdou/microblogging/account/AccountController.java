@@ -48,7 +48,7 @@ public class AccountController {
 
     @PatchMapping()
     public ResponseEntity<Void> updateAccount(@Valid @RequestBody UpdateAccountDto updateAccountDto,
-                                                 @AuthenticationPrincipal Account account
+                                              @AuthenticationPrincipal Account account
     ) {
         return accountService.updateAccount(updateAccountDto, account);
     }

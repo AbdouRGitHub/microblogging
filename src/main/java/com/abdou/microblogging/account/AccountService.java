@@ -9,6 +9,8 @@ import com.abdou.microblogging.common.exception.InvalidPasswordException;
 import com.abdou.microblogging.common.exception.PasswordIsMissingException;
 import com.abdou.microblogging.role.Role;
 import com.abdou.microblogging.role.RoleRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,8 @@ import java.util.UUID;
 @Service
 public class AccountService {
 
+    private final static Logger logger =
+            LoggerFactory.getLogger(AccountService.class);
     private final AccountRepository accountRepository;
     private final RoleRepository roleRepository;
 
@@ -34,14 +38,17 @@ public class AccountService {
     public ResponseEntity<Account> createAccount(CreateAccountDto createAccountDto) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
         Role userRole = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new RuntimeException(
-                        "Error: Role is not found."));
+                .orElseThrow(() -> {
+                    logger.warn("Role is not found: ROLE_USER");
+                    return new RuntimeException("Error: Role is not found.");
+                });
         Account account = new Account(createAccountDto.username(),
                 createAccountDto.email(),
                 encoder.encode(createAccountDto.password()),
                 userRole);
         accountRepository.save(account);
-        return new ResponseEntity<>(account, HttpStatus.CREATED);
+        logger.info("Account created: {}", account.getId());
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     public ResponseEntity<PagedModel<AccountSummaryDto>> getPaginatedAccounts(
@@ -89,6 +96,7 @@ public class AccountService {
             }
         }
         accountRepository.save(updateAccountDto.toAccount(fullAccount));
+        logger.info("Account updated: {}", account.getId());
         return ResponseEntity.ok().build();
     }
 
@@ -96,6 +104,7 @@ public class AccountService {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new AccountNotFoundException(id));
         accountRepository.delete(account);
+        logger.info("Account deleted: {}", account.getId());
         return ResponseEntity.ok().build();
     }
 }

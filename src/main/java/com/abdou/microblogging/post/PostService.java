@@ -6,6 +6,8 @@ import com.abdou.microblogging.like.dto.LikeDetailsDto;
 import com.abdou.microblogging.post.dto.CreatePostDto;
 import com.abdou.microblogging.post.dto.PostDetailsDto;
 import com.abdou.microblogging.post.exception.PostNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
@@ -18,6 +20,8 @@ import java.util.UUID;
 @Service
 public class PostService {
 
+    private final static Logger logger =
+            LoggerFactory.getLogger(PostService.class);
     private final PostRepository postRepository;
     private final LikeService likeService;
 
@@ -31,6 +35,7 @@ public class PostService {
     ) {
         Post post = new Post(createPostDto.content(), account);
         Post saved = postRepository.save(post);
+        logger.info("Post created: {}", saved.getId());
         return new ResponseEntity<>(PostDetailsDto.toDto(saved, 0, null),
                 HttpStatus.CREATED);
     }
@@ -43,6 +48,7 @@ public class PostService {
                 .orElseThrow(() -> new PostNotFoundException(postId));
         Post commentPost = new Post(createPostDto.content(), account, post);
         postRepository.save(commentPost);
+        logger.info("Comment created: {}", commentPost.getId());
         return ResponseEntity.ok().build();
     }
 
@@ -130,14 +136,16 @@ public class PostService {
         if (postDetailsDto.content() != null) {
             post.setContent(postDetailsDto.content());
         }
-
-        return ResponseEntity.ok(postRepository.save(post));
+        Post updated = postRepository.save(post);
+        logger.info("Post updated: {}", updated.getId());
+        return ResponseEntity.ok().build();
     }
 
     public ResponseEntity<?> deletePost(UUID id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new PostNotFoundException(id));
         postRepository.delete(post);
+        logger.info("Post deleted: {}", post.getId());
         return ResponseEntity.ok().build();
     }
 }

@@ -5,6 +5,8 @@ import com.abdou.microblogging.like.dto.LikeDetailsDto;
 import com.abdou.microblogging.post.Post;
 import com.abdou.microblogging.post.PostRepository;
 import com.abdou.microblogging.post.exception.PostNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,8 @@ import java.util.UUID;
 
 @Service
 public class LikeService {
+    private final static Logger logger =
+            LoggerFactory.getLogger(LikeService.class);
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
 
@@ -29,6 +33,7 @@ public class LikeService {
         }
         Like like = new Like(post, account);
         likeRepository.save(like);
+        logger.info("Account {} liked post {}", account.getId(), postId);
         return ResponseEntity.ok(like);
     }
 
@@ -40,6 +45,7 @@ public class LikeService {
                     .body("You haven't liked this post.");
         }
         Like like = likeRepository.findByAccountAndPost(account, post);
+        logger.info("Account {} unliked post {}", account.getId(), postId);
         likeRepository.delete(like);
         return ResponseEntity.ok().build();
 
