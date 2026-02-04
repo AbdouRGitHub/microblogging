@@ -33,6 +33,6 @@ build/
 .vscode/
 
 ### Applications properties ###
-application.properties
+application-local.properties
 
 
