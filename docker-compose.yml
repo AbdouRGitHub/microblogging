@@ -3,6 +3,8 @@ services:
     build: .
     ports:
       - "8080:8080"
+    networks:
+      - microblogging-network
     depends_on:
       - db
     environment:
@@ -12,8 +14,10 @@ services:
 
   db:
     image: postgres:17-alpine
-    ports:
-      - "5432:5432"
+    expose:
+      - 5432
+    networks:
+      - microblogging-network
     environment:
       POSTGRES_DB: microblogging
       POSTGRES_USER: postgres
@@ -23,3 +27,6 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  microblogging-network:
