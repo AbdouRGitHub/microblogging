@@ -7,20 +7,15 @@ import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.security.core.CredentialsContainer;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "accounts")
-public class Account implements UserDetails, CredentialsContainer {
+public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -90,19 +85,16 @@ public class Account implements UserDetails, CredentialsContainer {
         this.email = email;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
-                .collect(Collectors.toList());
-    }
-
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -117,8 +109,7 @@ public class Account implements UserDetails, CredentialsContainer {
         return posts;
     }
 
-    @Override
-    public void eraseCredentials() {
-        this.password = null;
+    public List<Like> getLikes() {
+        return likes;
     }
 }

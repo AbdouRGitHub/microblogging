@@ -1,5 +1,6 @@
 package com.abdou.microblogging.common;
 
+import com.abdou.microblogging.account.AccountPrincipal;
 import com.abdou.microblogging.account.AccountRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,6 +17,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         return this.accountRepository.findByUsername(username)
+                .map(AccountPrincipal::fromAccount)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }
 }
