@@ -66,26 +66,26 @@ public class AccountService {
         return ResponseEntity.ok().body(details);
     }
 
-    public ResponseEntity<AccountSummaryDto> getAccountSummary(Account account) {
-        Account me = accountRepository.findById(account.getId())
-                .orElseThrow(() -> new AccountNotFoundException(account.getId()));
+    public ResponseEntity<AccountSummaryDto> getAccountSummary(AccountPrincipal principal) {
+        Account me = accountRepository.findById(principal.getId())
+                .orElseThrow(() -> new AccountNotFoundException(principal.getId()));
 
         return ResponseEntity.ok(AccountSummaryDto.toDto(me));
     }
 
-    public ResponseEntity<AccountDetailsDto> getAccountDetails(Account account) {
-        Account me = accountRepository.findById(account.getId())
-                .orElseThrow(() -> new AccountNotFoundException(account.getId()));
+    public ResponseEntity<AccountDetailsDto> getAccountDetails(AccountPrincipal principal) {
+        Account me = accountRepository.findById(principal.getId())
+                .orElseThrow(() -> new AccountNotFoundException(principal.getId()));
 
         return ResponseEntity.ok(AccountDetailsDto.toDto(me));
     }
 
     public ResponseEntity<Void> updateAccount(UpdateAccountDto updateAccountDto,
-                                              Account account
+                                              AccountPrincipal principal
     ) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
-        Account fullAccount = accountRepository.findById(account.getId())
-                .orElseThrow(() -> new AccountNotFoundException(account.getId()));
+        Account fullAccount = accountRepository.findById(principal.getId())
+                .orElseThrow(() -> new AccountNotFoundException(principal.getId()));
         if (updateAccountDto.newPassword().isPresent()) {
             String current = updateAccountDto.currentPassword()
                     .orElseThrow(() -> new PasswordIsMissingException(
@@ -96,7 +96,7 @@ public class AccountService {
             }
         }
         accountRepository.save(updateAccountDto.toAccount(fullAccount));
-        logger.info("Account updated: {}", account.getId());
+        logger.info("Account updated: {}", principal.getId());
         return ResponseEntity.ok().build();
     }
 

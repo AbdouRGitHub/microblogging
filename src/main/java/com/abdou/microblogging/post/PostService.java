@@ -1,6 +1,9 @@
 package com.abdou.microblogging.post;
 
 import com.abdou.microblogging.account.Account;
+import com.abdou.microblogging.account.AccountPrincipal;
+import com.abdou.microblogging.account.AccountRepository;
+import com.abdou.microblogging.account.exception.AccountNotFoundException;
 import com.abdou.microblogging.like.LikeService;
 import com.abdou.microblogging.like.dto.LikeDetailsDto;
 import com.abdou.microblogging.post.dto.CreatePostDto;
@@ -24,15 +27,19 @@ public class PostService {
             LoggerFactory.getLogger(PostService.class);
     private final PostRepository postRepository;
     private final LikeService likeService;
+    private final AccountRepository accountRepository;
 
-    PostService(PostRepository postRepository, LikeService likeService) {
+    PostService(PostRepository postRepository, LikeService likeService, AccountRepository accountRepository) {
         this.postRepository = postRepository;
         this.likeService = likeService;
+        this.accountRepository = accountRepository;
     }
 
-    public ResponseEntity<PostDetailsDto> createPost(Account account,
+    public ResponseEntity<PostDetailsDto> createPost(AccountPrincipal principal,
                                                      CreatePostDto createPostDto
     ) {
+        Account account = accountRepository.findById(principal.getId())
+                .orElseThrow(() -> new AccountNotFoundException(principal.getId()));
         Post post = new Post(createPostDto.content(), account);
         Post saved = postRepository.save(post);
         logger.info("Post created: {}", saved.getId());
@@ -42,8 +49,10 @@ public class PostService {
 
     public ResponseEntity<Object> createComment(UUID postId,
                                                 CreatePostDto createPostDto,
-                                                Account account
+                                                AccountPrincipal principal
     ) {
+        Account account = accountRepository.findById(principal.getId())
+                .orElseThrow(() -> new AccountNotFoundException(principal.getId()));
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
         Post commentPost = new Post(createPostDto.content(), account, post);
@@ -53,13 +62,13 @@ public class PostService {
     }
 
     public ResponseEntity<PagedModel<PostDetailsDto>> getLatestPosts(int page,
-                                                                     Account account
+                                                                     AccountPrincipal principal
     ) {
         Page<Post> posts = postRepository.findLatestPosts(Pageable.ofSize(10)
                 .withPage(page - 1));
         return ResponseEntity.ok().body(new PagedModel<>(posts.map(post -> {
             LikeDetailsDto likes =
-                    likeService.getLikeDetails(post.getId(), account);
+                    likeService.getLikeDetails(post.getId(), principal);
             int commentsCount = getNumberOfComments(post.getId());
             return PostDetailsDto.toDto(post, commentsCount, likes);
         })));
@@ -67,24 +76,24 @@ public class PostService {
 
     public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedComments(UUID postId,
                                                                            int page,
-                                                                           Account account
+                                                                           AccountPrincipal principal
     ) {
         Page<Post> posts = postRepository.findLatestComments(Pageable.ofSize(10)
                 .withPage(page - 1), postId);
         return ResponseEntity.ok().body(new PagedModel<>(posts.map(post -> {
             LikeDetailsDto likes =
-                    likeService.getLikeDetails(post.getId(), account);
+                    likeService.getLikeDetails(post.getId(), principal);
             int commentsCount = getNumberOfComments(post.getId());
             return PostDetailsDto.toDto(post, commentsCount, likes);
         })));
     }
 
     public ResponseEntity<PostDetailsDto> getPostInfo(UUID id,
-                                                      Account account
+                                                      AccountPrincipal principal
     ) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new PostNotFoundException(id));
-        LikeDetailsDto likes = likeService.getLikeDetails(id, account);
+        LikeDetailsDto likes = likeService.getLikeDetails(id, principal);
         int commentsCount = getNumberOfComments(post.getId());
         return ResponseEntity.ok(PostDetailsDto.toDto(post,
                 commentsCount,
@@ -93,14 +102,14 @@ public class PostService {
 
     public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedUserPosts(UUID userId,
                                                                             int page,
-                                                                            Account account
+                                                                            AccountPrincipal principal
     ) {
         Page<Post> posts = postRepository.findUserPosts(Pageable.ofSize(10)
                 .withPage(page - 1), userId);
 
         return ResponseEntity.ok(new PagedModel<>(posts.map(post -> {
             LikeDetailsDto likes =
-                    likeService.getLikeDetails(post.getId(), account);
+                    likeService.getLikeDetails(post.getId(), principal);
             int commentsCount = getNumberOfComments(post.getId());
             return PostDetailsDto.toDto(post, commentsCount, likes);
         })));
@@ -109,7 +118,7 @@ public class PostService {
     public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedUserReplies(
             UUID userId,
             int page,
-            Account account
+            AccountPrincipal principal
 
     ) {
         Page<Post> posts = postRepository.findUserReplies(Pageable.ofSize(10)
@@ -117,7 +126,7 @@ public class PostService {
 
         return ResponseEntity.ok(new PagedModel<>(posts.map(post -> {
             LikeDetailsDto likes =
-                    likeService.getLikeDetails(post.getId(), account);
+                    likeService.getLikeDetails(post.getId(), principal);
             int commentsCount = getNumberOfComments(post.getId());
             return PostDetailsDto.toDto(post, commentsCount, likes);
         })));

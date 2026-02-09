@@ -36,6 +36,10 @@ public class AccountPrincipal implements UserDetails, CredentialsContainer {
         );
     }
 
+    public UUID getId() {
+        return id;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
@@ -69,10 +73,6 @@ public class AccountPrincipal implements UserDetails, CredentialsContainer {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    public UUID getId() {
-        return id;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.abdou.microblogging.post;
 
-import com.abdou.microblogging.account.Account;
+import com.abdou.microblogging.account.AccountPrincipal;
 import com.abdou.microblogging.like.LikeService;
 import com.abdou.microblogging.post.dto.CreatePostDto;
 import com.abdou.microblogging.post.dto.PostDetailsDto;
@@ -24,70 +24,70 @@ public class PostController {
     }
 
     @PostMapping()
-    public ResponseEntity<PostDetailsDto> createPost(@AuthenticationPrincipal Account account,
+    public ResponseEntity<PostDetailsDto> createPost(@AuthenticationPrincipal AccountPrincipal principal,
                                                      @Valid @RequestBody CreatePostDto createPostDto
     ) {
-        return postService.createPost(account, createPostDto);
+        return postService.createPost(principal, createPostDto);
     }
 
     @PostMapping("/{id}/comments")
     public ResponseEntity<Object> createComment(@PathVariable UUID id,
                                                 @Valid @RequestBody CreatePostDto createPostDto,
-                                                @AuthenticationPrincipal Account account
+                                                @AuthenticationPrincipal AccountPrincipal principal
     ) {
-        return postService.createComment(id, createPostDto, account);
+        return postService.createComment(id, createPostDto, principal);
     }
 
     @PostMapping("/{id}/likes")
     public ResponseEntity<Object> createLike(@PathVariable UUID id,
-                                             @AuthenticationPrincipal Account account
+                                             @AuthenticationPrincipal AccountPrincipal principal
     ) {
-        return likeService.createLike(id, account);
+        return likeService.createLike(id, principal);
     }
 
     @DeleteMapping("/{id}/likes")
     public ResponseEntity<Object> deleteLike(@PathVariable UUID id,
-                                             @AuthenticationPrincipal Account account
+                                             @AuthenticationPrincipal AccountPrincipal principal
     ) {
-        return likeService.deleteLike(id, account);
+        return likeService.deleteLike(id, principal);
     }
 
     @GetMapping()
     public ResponseEntity<PagedModel<PostDetailsDto>> getLatestPosts(@RequestParam(defaultValue = "1") int page,
-                                                                     @AuthenticationPrincipal Account account
+                                                                     @AuthenticationPrincipal AccountPrincipal principal
     ) {
-        return postService.getLatestPosts(page, account);
+        return postService.getLatestPosts(page, principal);
     }
 
     @GetMapping("/{id}/comments")
     public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedComments(@PathVariable("id") UUID postId,
                                                                            @RequestParam(defaultValue = "1") int page,
-                                                                           @AuthenticationPrincipal Account account
+                                                                           @AuthenticationPrincipal AccountPrincipal principal
     ) {
-        return postService.getPaginatedComments(postId, page, account);
+        return postService.getPaginatedComments(postId, page, principal);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PostDetailsDto> getPostInfo(@PathVariable UUID id,
-                                                      @AuthenticationPrincipal Account account
+                                                      @AuthenticationPrincipal AccountPrincipal principal
     ) {
-        return postService.getPostInfo(id, account);
+        return postService.getPostInfo(id, principal);
     }
 
     @GetMapping("/by-user/{id}")
     public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedUserPosts(@PathVariable UUID id,
                                                                             @RequestParam(defaultValue = "1") int page,
-                                                                            @AuthenticationPrincipal Account account
+                                                                            @AuthenticationPrincipal AccountPrincipal principal
     ) {
-        return postService.getPaginatedUserPosts(id, page, account);
+        return postService.getPaginatedUserPosts(id, page, principal);
     }
 
     @GetMapping("/by-user/{id}/replies")
     public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedUserReplies(@PathVariable UUID id,
                                                                               @RequestParam(defaultValue = "1") int page,
-                                                                              @AuthenticationPrincipal Account account
+                                                                              @AuthenticationPrincipal AccountPrincipal principal
     ) {
-        return postService.getPaginatedUserReplies(id, page, account);
+        return postService.getPaginatedUserReplies(id, page, principal);
     }
 
     @PatchMapping("/{id}")

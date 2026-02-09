@@ -37,24 +37,24 @@ public class AccountController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<AccountSummaryDto> getAccountSummary(@AuthenticationPrincipal Account account) {
-        return accountService.getAccountSummary(account);
+    public ResponseEntity<AccountSummaryDto> getAccountSummary(@AuthenticationPrincipal AccountPrincipal principal) {
+        return accountService.getAccountSummary(principal);
     }
 
     @GetMapping("/me/details")
-    public ResponseEntity<AccountDetailsDto> getAccountDetails(@AuthenticationPrincipal Account account) {
-        return accountService.getAccountDetails(account);
+    public ResponseEntity<AccountDetailsDto> getAccountDetails(@AuthenticationPrincipal AccountPrincipal principal) {
+        return accountService.getAccountDetails(principal);
     }
 
     @PatchMapping()
     public ResponseEntity<Void> updateAccount(@Valid @RequestBody UpdateAccountDto updateAccountDto,
-                                              @AuthenticationPrincipal Account account
+                                              @AuthenticationPrincipal AccountPrincipal principal
     ) {
-        return accountService.updateAccount(updateAccountDto, account);
+        return accountService.updateAccount(updateAccountDto, principal);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteAccount(@AuthenticationPrincipal Account account) {
-        return accountService.deleteAccount(account.getId());
+    public ResponseEntity<?> deleteAccount(@AuthenticationPrincipal AccountPrincipal principal) {
+        return accountService.deleteAccount(principal.getId());
     }
 }
