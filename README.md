@@ -20,7 +20,7 @@ L'application est accessible sur http://localhost:8080
 ## Voir les logs
 
 ```bash
-docker compose logs -f app
+docker compose logs -f backend
 ```
 
 ## Arrêter
