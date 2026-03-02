@@ -65,3 +65,5 @@ ALTER TABLE account_roles
 
 ALTER TABLE account_roles
     ADD CONSTRAINT fk_accrol_on_role FOREIGN KEY (role_id) REFERENCES role (id);
+
+CREATE INDEX IF NOT EXISTS idx_account_username ON accounts(username);

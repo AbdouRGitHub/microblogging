@@ -15,7 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -27,16 +27,17 @@ public class AccountService {
             LoggerFactory.getLogger(AccountService.class);
     private final AccountRepository accountRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder encoder;
 
     AccountService(AccountRepository accountRepository,
-                   RoleRepository roleRepository
+                   RoleRepository roleRepository, PasswordEncoder encoder
     ) {
         this.accountRepository = accountRepository;
         this.roleRepository = roleRepository;
+        this.encoder = encoder;
     }
 
     public ResponseEntity<Account> createAccount(CreateAccountDto createAccountDto) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
         Role userRole = roleRepository.findByName("ROLE_USER")
                 .orElseThrow(() -> {
                     logger.warn("Role is not found: ROLE_USER");
@@ -83,7 +84,6 @@ public class AccountService {
     public ResponseEntity<Void> updateAccount(UpdateAccountDto updateAccountDto,
                                               AccountPrincipal principal
     ) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
         Account fullAccount = accountRepository.findById(principal.getId())
                 .orElseThrow(() -> new AccountNotFoundException(principal.getId()));
         if (updateAccountDto.newPassword().isPresent()) {
