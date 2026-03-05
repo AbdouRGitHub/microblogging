@@ -4,6 +4,7 @@ import com.abdou.microblogging.account.Account;
 import com.abdou.microblogging.account.AccountPrincipal;
 import com.abdou.microblogging.account.AccountRepository;
 import com.abdou.microblogging.account.exception.AccountNotFoundException;
+import com.abdou.microblogging.account.exception.BookMarkAlreadyExistException;
 import com.abdou.microblogging.like.LikeService;
 import com.abdou.microblogging.like.dto.LikeDetailsDto;
 import com.abdou.microblogging.post.dto.CreatePostDto;
@@ -58,6 +59,23 @@ public class PostService {
         Post commentPost = new Post(createPostDto.content(), account, post);
         postRepository.save(commentPost);
         logger.info("Comment created: {}", commentPost.getId());
+        return ResponseEntity.ok().build();
+    }
+
+    public ResponseEntity<Object> createBookmark(UUID id, AccountPrincipal principal) {
+        Account account = accountRepository.findById(principal.getId())
+                .orElseThrow(() -> new AccountNotFoundException(principal.getId()));
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException(id));
+
+        if (account.getBookmarks().contains(post)) {
+            throw new BookMarkAlreadyExistException("The Bookmark already exist");
+        }
+        account.getBookmarks().add(post);
+        post.getBookmarkedBy().add(account);
+        accountRepository.save(account);
+
+        logger.info("Bookmark created: Post#{} |  Account#{} ", post.getId(), account.getId());
         return ResponseEntity.ok().build();
     }
 
@@ -147,6 +165,20 @@ public class PostService {
         }
         Post updated = postRepository.save(post);
         logger.info("Post updated: {}", updated.getId());
+        return ResponseEntity.ok().build();
+    }
+
+    public ResponseEntity<Object> removeBookmark(UUID id, AccountPrincipal principal) {
+        Account account = accountRepository.findById(principal.getId())
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        account.getBookmarks().remove(post);
+        post.getBookmarkedBy().remove(account);
+        logger.info("Bookmark removed: Post#{} |  Account#{} ", post.getId(), account.getId());
+        accountRepository.save(account);
         return ResponseEntity.ok().build();
     }
 

@@ -1,11 +1,14 @@
 package com.abdou.microblogging.role;
 
+import com.abdou.microblogging.account.Account;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -17,6 +20,9 @@ public class Role {
 
     @Column(nullable = false, unique = true)
     private String name;
+
+    @ManyToMany(mappedBy = "roles")
+    private final Set<Account> accounts = new HashSet<>();
 
     @CreatedDate
     private LocalDateTime createdAt;

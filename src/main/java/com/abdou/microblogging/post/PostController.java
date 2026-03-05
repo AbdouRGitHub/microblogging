@@ -45,12 +45,11 @@ public class PostController {
         return likeService.createLike(id, principal);
     }
 
-    @DeleteMapping("/{id}/likes")
-    public ResponseEntity<Object> deleteLike(@PathVariable UUID id,
-                                             @AuthenticationPrincipal AccountPrincipal principal
-    ) {
-        return likeService.deleteLike(id, principal);
+    @PostMapping("/{id}/bookmarks")
+    public ResponseEntity<Object> createBookmark(@PathVariable UUID id, @AuthenticationPrincipal AccountPrincipal principal) {
+        return postService.createBookmark(id, principal);
     }
+
 
     @GetMapping()
     public ResponseEntity<PagedModel<PostDetailsDto>> getLatestPosts(@RequestParam(defaultValue = "1") int page,
@@ -95,6 +94,19 @@ public class PostController {
                                            @PathVariable UUID id
     ) {
         return postService.updatePost(postDetailsDto, id);
+    }
+
+    @DeleteMapping("/{id}/likes")
+    public ResponseEntity<Object> deleteLike(@PathVariable UUID id,
+                                             @AuthenticationPrincipal AccountPrincipal principal
+    ) {
+        return likeService.deleteLike(id, principal);
+    }
+
+    @DeleteMapping("/{id}/bookmarks")
+    public ResponseEntity<Object> removeBookmark(@PathVariable UUID id, @AuthenticationPrincipal AccountPrincipal principal) {
+        return postService.removeBookmark(id, principal);
+
     }
 
     @DeleteMapping("/{id}")

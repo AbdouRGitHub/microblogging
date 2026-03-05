@@ -8,37 +8,30 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "posts")
 public class Post {
 
+    @ManyToMany(mappedBy = "bookmarks")
+    private Set<Account> bookmarkedBy = new HashSet<>();
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
     @Column(nullable = false, length = 300)
     private String content;
-
     @CreatedDate
     private LocalDateTime createdAt;
-
     @LastModifiedDate
     private LocalDateTime updatedAt;
-
     @ManyToOne(optional = false)
     private Account account;
-
     @ManyToOne
     private Post parent;
-
     @OneToMany(mappedBy = "parent", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Post> replies = new ArrayList<>();
-
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Like> likes = new ArrayList<>();
 
@@ -84,4 +77,15 @@ public class Post {
         return account;
     }
 
+    public Post getParent() {
+        return parent;
+    }
+
+    public Set<Account> getBookmarkedBy() {
+        return bookmarkedBy;
+    }
+
+    public void setBookmarkedBy(Set<Account> bookmarkedBy) {
+        this.bookmarkedBy = bookmarkedBy;
+    }
 }

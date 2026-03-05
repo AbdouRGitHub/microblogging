@@ -19,24 +19,12 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
     @Column(nullable = false)
     private String username;
-
     @Column(nullable = false)
     private String email;
-
     @Column(nullable = false)
     private String password;
-
-    @ManyToMany
-    @JoinTable(
-            name = "account_roles",
-            joinColumns = @JoinColumn(name = "account_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private final Set<Role> roles = new HashSet<>();
-
     @CreatedDate
     private LocalDateTime createdAt;
 
@@ -48,6 +36,22 @@ public class Account {
 
     @OneToMany(mappedBy = "account", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Like> likes = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "bookmarks",
+            joinColumns = @JoinColumn(name = "account_id"),
+            inverseJoinColumns = @JoinColumn(name = "post_id")
+    )
+    private Set<Post> bookmarks = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "account_roles",
+            joinColumns = @JoinColumn(name = "account_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private final Set<Role> roles = new HashSet<>();
 
     public Account() {
     }
@@ -111,5 +115,13 @@ public class Account {
 
     public List<Like> getLikes() {
         return likes;
+    }
+
+    public Set<Post> getBookmarks() {
+        return bookmarks;
+    }
+
+    public void setBookmarks(Set<Post> bookmarks) {
+        this.bookmarks = bookmarks;
     }
 }
