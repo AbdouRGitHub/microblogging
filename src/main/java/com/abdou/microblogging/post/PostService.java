@@ -106,6 +106,18 @@ public class PostService {
         })));
     }
 
+    public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedBookmarkPosts(int page, AccountPrincipal principal) {
+        Page<Post> bookmarkedPost = postRepository.findBookmarkedPosts(Pageable.ofSize(10)
+                .withPage(page - 1), principal.getId());
+
+        return ResponseEntity.ok().body(new PagedModel<>(bookmarkedPost.map(post -> {
+            LikeDetailsDto likes =
+                    likeService.getLikeDetails(post.getId(), principal);
+            int commentsCount = getNumberOfComments(post.getId());
+            return PostDetailsDto.toDto(post, commentsCount, likes);
+        })));
+    }
+
     public ResponseEntity<PostDetailsDto> getPostInfo(UUID id,
                                                       AccountPrincipal principal
     ) {

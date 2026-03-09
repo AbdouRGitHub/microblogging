@@ -58,6 +58,13 @@ public class PostController {
         return postService.getLatestPosts(page, principal);
     }
 
+    @GetMapping("/bookmarks")
+    public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedBookmarkPosts(@RequestParam(defaultValue = "1") int page,
+                                                                                @AuthenticationPrincipal AccountPrincipal principal
+    ) {
+        return postService.getPaginatedBookmarkPosts(page, principal);
+    }
+
     @GetMapping("/{id}/comments")
     public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedComments(@PathVariable("id") UUID postId,
                                                                            @RequestParam(defaultValue = "1") int page,
@@ -106,7 +113,6 @@ public class PostController {
     @DeleteMapping("/{id}/bookmarks")
     public ResponseEntity<Object> removeBookmark(@PathVariable UUID id, @AuthenticationPrincipal AccountPrincipal principal) {
         return postService.removeBookmark(id, principal);
-
     }
 
     @DeleteMapping("/{id}")
