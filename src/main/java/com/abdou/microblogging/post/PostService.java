@@ -5,6 +5,7 @@ import com.abdou.microblogging.account.AccountPrincipal;
 import com.abdou.microblogging.account.AccountRepository;
 import com.abdou.microblogging.account.exception.AccountNotFoundException;
 import com.abdou.microblogging.account.exception.BookMarkAlreadyExistException;
+import com.abdou.microblogging.bookmark.dto.BookmarkDetailsDto;
 import com.abdou.microblogging.like.LikeService;
 import com.abdou.microblogging.like.dto.LikeDetailsDto;
 import com.abdou.microblogging.post.dto.CreatePostDto;
@@ -44,7 +45,7 @@ public class PostService {
         Post post = new Post(createPostDto.content(), account);
         Post saved = postRepository.save(post);
         logger.info("Post created: {}", saved.getId());
-        return new ResponseEntity<>(PostDetailsDto.toDto(saved, 0, null),
+        return new ResponseEntity<>(PostDetailsDto.toDto(saved, 0, null, null),
                 HttpStatus.CREATED);
     }
 
@@ -88,7 +89,8 @@ public class PostService {
             LikeDetailsDto likes =
                     likeService.getLikeDetails(post.getId(), principal);
             int commentsCount = getNumberOfComments(post.getId());
-            return PostDetailsDto.toDto(post, commentsCount, likes);
+            BookmarkDetailsDto bookmarks = BookmarkDetailsDto.toDto(getNumberOfBookmarks(post.getId()), isBookmarked(post.getId(), principal));
+            return PostDetailsDto.toDto(post, commentsCount, likes, bookmarks);
         })));
     }
 
@@ -102,7 +104,8 @@ public class PostService {
             LikeDetailsDto likes =
                     likeService.getLikeDetails(post.getId(), principal);
             int commentsCount = getNumberOfComments(post.getId());
-            return PostDetailsDto.toDto(post, commentsCount, likes);
+            BookmarkDetailsDto bookmarks = BookmarkDetailsDto.toDto(getNumberOfBookmarks(post.getId()), isBookmarked(post.getId(), principal));
+            return PostDetailsDto.toDto(post, commentsCount, likes, bookmarks);
         })));
     }
 
@@ -114,7 +117,8 @@ public class PostService {
             LikeDetailsDto likes =
                     likeService.getLikeDetails(post.getId(), principal);
             int commentsCount = getNumberOfComments(post.getId());
-            return PostDetailsDto.toDto(post, commentsCount, likes);
+            BookmarkDetailsDto bookmarks = BookmarkDetailsDto.toDto(getNumberOfBookmarks(post.getId()), isBookmarked(post.getId(), principal));
+            return PostDetailsDto.toDto(post, commentsCount, likes, bookmarks);
         })));
     }
 
@@ -125,9 +129,10 @@ public class PostService {
                 .orElseThrow(() -> new PostNotFoundException(id));
         LikeDetailsDto likes = likeService.getLikeDetails(id, principal);
         int commentsCount = getNumberOfComments(post.getId());
+        BookmarkDetailsDto bookmarks = BookmarkDetailsDto.toDto(getNumberOfBookmarks(post.getId()), isBookmarked(post.getId(), principal));
         return ResponseEntity.ok(PostDetailsDto.toDto(post,
                 commentsCount,
-                likes));
+                likes, bookmarks));
     }
 
     public ResponseEntity<PagedModel<PostDetailsDto>> getPaginatedUserPosts(UUID userId,
@@ -141,7 +146,8 @@ public class PostService {
             LikeDetailsDto likes =
                     likeService.getLikeDetails(post.getId(), principal);
             int commentsCount = getNumberOfComments(post.getId());
-            return PostDetailsDto.toDto(post, commentsCount, likes);
+            BookmarkDetailsDto bookmarks = BookmarkDetailsDto.toDto(getNumberOfBookmarks(post.getId()), isBookmarked(post.getId(), principal));
+            return PostDetailsDto.toDto(post, commentsCount, likes, bookmarks);
         })));
     }
 
@@ -158,12 +164,21 @@ public class PostService {
             LikeDetailsDto likes =
                     likeService.getLikeDetails(post.getId(), principal);
             int commentsCount = getNumberOfComments(post.getId());
-            return PostDetailsDto.toDto(post, commentsCount, likes);
+            BookmarkDetailsDto bookmarks = BookmarkDetailsDto.toDto(getNumberOfBookmarks(post.getId()), isBookmarked(post.getId(), principal));
+            return PostDetailsDto.toDto(post, commentsCount, likes, bookmarks);
         })));
     }
 
     public int getNumberOfComments(UUID postId) {
         return postRepository.countReplies(postId);
+    }
+
+    public int getNumberOfBookmarks(UUID postId) {
+        return postRepository.countBookmarks(postId);
+    }
+
+    public boolean isBookmarked(UUID postId, AccountPrincipal principal) {
+        return postRepository.isUserBookmarked(principal.getId(), postId);
     }
 
     public ResponseEntity<Post> updatePost(PostDetailsDto postDetailsDto,

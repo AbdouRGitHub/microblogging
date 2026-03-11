@@ -27,6 +27,12 @@ public interface PostRepository extends JpaRepository<Post, UUID>, PagingAndSort
     @Query("SELECT COUNT(m) FROM Post m WHERE m.parent.id = :parentId")
     int countReplies(UUID parentId);
 
+    @Query("SELECT COUNT(a) FROM Account a JOIN a.bookmarks p WHERE p.id = :postId")
+    int countBookmarks(UUID postId);
+
+    @Query("SELECT COUNT(p) > 0 FROM Post p JOIN p.bookmarkedBy b WHERE b.id = :accountId AND p.id = :postId")
+    boolean isUserBookmarked(UUID accountId, UUID postId);
+
     @Query("SELECT p FROM Post p JOIN p.bookmarkedBy b WHERE b.id=:accountId")
     Page<Post> findBookmarkedPosts(Pageable pageable, @Param("accountId") UUID accountId);
 }
