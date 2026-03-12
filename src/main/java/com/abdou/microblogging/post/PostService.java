@@ -4,8 +4,9 @@ import com.abdou.microblogging.account.Account;
 import com.abdou.microblogging.account.AccountPrincipal;
 import com.abdou.microblogging.account.AccountRepository;
 import com.abdou.microblogging.account.exception.AccountNotFoundException;
-import com.abdou.microblogging.account.exception.BookMarkAlreadyExistException;
+import com.abdou.microblogging.bookmark.exception.BookmarkAlreadyExistException;
 import com.abdou.microblogging.bookmark.dto.BookmarkDetailsDto;
+import com.abdou.microblogging.bookmark.exception.BookmarkNotFoundException;
 import com.abdou.microblogging.like.LikeService;
 import com.abdou.microblogging.like.dto.LikeDetailsDto;
 import com.abdou.microblogging.post.dto.CreatePostDto;
@@ -70,7 +71,7 @@ public class PostService {
                 .orElseThrow(() -> new PostNotFoundException(id));
 
         if (account.getBookmarks().contains(post)) {
-            throw new BookMarkAlreadyExistException("The Bookmark already exist");
+            throw new BookmarkAlreadyExistException("The Bookmark already exist");
         }
         account.getBookmarks().add(post);
         post.getBookmarkedBy().add(account);
@@ -202,6 +203,9 @@ public class PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
+        if (!account.getBookmarks().contains(post)) {
+            throw new BookmarkNotFoundException("Bookmark not found");
+        }
         account.getBookmarks().remove(post);
         post.getBookmarkedBy().remove(account);
         logger.info("Bookmark removed: Post#{} |  Account#{} ", post.getId(), account.getId());

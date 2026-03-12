@@ -35,7 +35,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.COOKIES;
 import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.withDefaults;
@@ -116,6 +118,19 @@ public class MicrobloggingApplication {
                     Like like = new Like(post, randomAccount);
                     likeRepository.save(like);
                 }
+            }
+
+            // Peuplement des bookmarks
+            for (Account account : allAccounts) {
+                // Chaque utilisateur bookmark entre 0 et 5 posts aléatoires
+                int bookmarksCount = (int) (Math.random() * 6);
+                Set<Post> bookmarkedPosts = new HashSet<>();
+                for (int b = 0; b < bookmarksCount; b++) {
+                    Post randomPost = allPosts.get((int) (Math.random() * allPosts.size()));
+                    bookmarkedPosts.add(randomPost);
+                }
+                account.setBookmarks(bookmarkedPosts);
+                accountRepository.save(account);
             }
         };
     }
