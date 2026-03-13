@@ -179,6 +179,9 @@ public class PostService {
     }
 
     public boolean isBookmarked(UUID postId, AccountPrincipal principal) {
+        if (principal == null) {
+            return false;
+        }
         return postRepository.isUserBookmarked(principal.getId(), postId);
     }
 
